@@ -110,7 +110,7 @@ fn exit_discord(client: &mut DiscordIpcClient) {
 fn run_rpc_loop(state: Arc<Mutex<GameState>>, cfg: config::Config) {
     info!("[discord] Connecting...");
     let mut client = connect_discord(DISCORD_APP_ID);
-    let mut hero_cache = HeroCache::new();
+    let mut hero_cache = HeroCache::new(cfg.presence.show_hero_gloat_portrait);
     let mut last_state: Option<LastRpcState> = None;
     let mut game_was_running = false;
 

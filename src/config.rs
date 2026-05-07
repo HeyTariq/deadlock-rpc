@@ -24,6 +24,7 @@ pub struct PresenceConfig {
     pub show_elapsed_timer: bool,
     pub show_hero_image: bool,
     pub show_statlocker_button: bool,
+    pub show_hero_gloat_portrait: bool,
     pub details_with_hero: String,
     pub details_without_hero: String,
     pub status: StatusStrings,
@@ -69,6 +70,7 @@ impl Default for PresenceConfig {
             show_elapsed_timer: true,
             show_hero_image: true,
             show_statlocker_button: false,
+            show_hero_gloat_portrait: false,
             details_with_hero: "Playing as {hero}".to_string(),
             details_without_hero: "{phase}".to_string(),
             status: StatusStrings::default(),
@@ -83,7 +85,7 @@ impl Default for StatusStrings {
             in_main_menu: "Browsing the Main Menu".to_string(),
             in_hideout: "In the Hideout".to_string(),
             in_matchmaking: "Searching for a Match...".to_string(),
-            loading_into_match: "{mode} \u{2022} Loading into Match".to_string(),
+            loading_into_match: "{mode} - Loading into Match".to_string(),
             in_match: "In Match: {mode}".to_string(),
             match_location_label: "the Cursed Apple".to_string(),
             post_match: "Reviewing Match Results".to_string(),
@@ -204,6 +206,7 @@ discord_update_interval_s = 5
 show_elapsed_timer = true
 show_hero_image = true
 show_statlocker_button = false
+show_hero_gloat_portrait = false
 details_with_hero = "Playing as {hero}"
 details_without_hero = "{phase}"
 
@@ -212,7 +215,7 @@ game_not_running = "Not Running"
 in_main_menu = "Browsing the Main Menu"
 in_hideout = "In the Hideout"
 in_matchmaking = "Searching for a Match..."
-loading_into_match = "{mode} \u{2022} Loading into Match"
+loading_into_match = "{mode} - Loading into Match"
 in_match = "In Match: {mode}"
 match_location_label = "the Cursed Apple"
 post_match = "Reviewing Match Results"
