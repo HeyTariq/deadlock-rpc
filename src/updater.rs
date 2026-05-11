@@ -1,4 +1,4 @@
-use log::{debug, info, warn};
+use log::{info, warn};
 use std::io::{Cursor, Read};
 
 const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION");
