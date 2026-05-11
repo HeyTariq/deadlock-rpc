@@ -1,0 +1,40 @@
+[general]
+launch_game_on_start = true
+exit_when_game_closes = true
+game_log_poll_interval_ms = 500
+discord_update_interval_s = 5
+# Managed automatically — do not edit.
+config_version = 2
+
+[presence]
+show_elapsed_timer = true
+show_hero_image = true
+# Show a Statlocker button when your Steam ID is detected in the game log.
+show_statlocker_button = false
+# Hero portrait style to display. Options: "normal", "gloat", "critical".
+hero_portrait_style = "normal"
+# Rich presence detail line when a hero is selected. Supports {hero}.
+details_with_hero = "Playing as {hero}"
+# Rich presence detail line when no hero is selected. Supports {phase}.
+details_without_hero = "{phase}"
+
+[presence.status]
+# Status strings for each game phase. Supports {mode} where noted.
+game_not_running = "Not Running"
+in_main_menu = "Browsing the Main Menu"
+in_hideout = "In the Hideout"
+in_matchmaking = "Searching for a Match..."
+# Supports {mode} (e.g. "Ranked", "Unranked").
+loading_into_match = "{mode} - Loading into Match"
+# Supports {mode}.
+in_match = "In Match: {mode}"
+match_location_label = "the Cursed Apple"
+post_match = "Reviewing Match Results"
+spectating = "Spectating a Match"
+
+# Asset key names registered in your Discord application's Art Assets.
+[images]
+fallback_large_image = "deadlock_logo"
+fallback_large_image_tooltip = "Deadlock"
+corner_image = "deadlock_logo"
+corner_image_tooltip = "Deadlock RPC"

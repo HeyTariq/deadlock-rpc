@@ -110,7 +110,7 @@ fn exit_discord(client: &mut DiscordIpcClient) {
 fn run_rpc_loop(state: Arc<Mutex<GameState>>, cfg: config::Config) {
     info!("[discord] Connecting...");
     let mut client = connect_discord(DISCORD_APP_ID);
-    let mut hero_cache = HeroCache::new();
+    let mut hero_cache = HeroCache::new(cfg.presence.hero_portrait_style);
     let mut last_state: Option<LastRpcState> = None;
     let mut game_was_running = false;
 
@@ -229,6 +229,11 @@ std::process::exit(0);
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
+
+    if args.iter().any(|a| a == "--generate-config") {
+        std::fs::write("config.toml", config::DEFAULT_TOML).expect("failed to write config.toml");
+        return;
+    }
 
     logger::init();
 

@@ -49,11 +49,20 @@ jobs:
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
 
+      - name: Generate default config (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: ./target/${{ matrix.target }}/release/deadlock-rpc --generate-config
+
+      - name: Generate default config (Windows)
+        if: matrix.os == 'windows-latest'
+        run: .\target\${{ matrix.target }}\release\deadlock-rpc.exe --generate-config
+
       - name: Package (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
           mkdir -p package/deadlock-rpc/assets package/deadlock-rpc/logs
           cp target/${{ matrix.target }}/release/${{ matrix.binary }} package/deadlock-rpc/deadlock-rpc
+          cp config.toml package/deadlock-rpc/config.toml
           cp assets/icon.ico assets/icon.png package/deadlock-rpc/assets/
           cd package && zip -r ../${{ matrix.zip }} deadlock-rpc/
 
@@ -63,6 +72,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path package\deadlock-rpc\assets | Out-Null
           New-Item -ItemType Directory -Force -Path package\deadlock-rpc\logs | Out-Null
           Copy-Item target\${{ matrix.target }}\release\${{ matrix.binary }} package\deadlock-rpc\deadlock-rpc.exe
+          Copy-Item config.toml package\deadlock-rpc\config.toml
           Copy-Item assets\icon.ico package\deadlock-rpc\assets\icon.ico
           Copy-Item assets\icon.png package\deadlock-rpc\assets\icon.png
           Compress-Archive -Path package\deadlock-rpc -DestinationPath ${{ matrix.zip }}

@@ -1,3 +1,4 @@
+use crate::config::HeroPortraitStyle;
 use log::{debug, info, warn};
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -19,20 +20,23 @@ struct ApiHero {
 #[derive(Deserialize)]
 struct ApiImages {
     icon_hero_card: Option<String>,
+    hero_card_gloat: Option<String>,
+    hero_card_critical: Option<String>,
 }
 
 pub struct HeroCache {
     map: HashMap<String, HeroData>,
     client: reqwest::blocking::Client,
+    portrait_style: HeroPortraitStyle,
 }
 
 impl HeroCache {
-    pub fn new() -> Self {
+    pub fn new(portrait_style: HeroPortraitStyle) -> Self {
         let client = reqwest::blocking::Client::builder()
             .timeout(std::time::Duration::from_secs(5))
             .build()
             .expect("failed to build HTTP client");
-        Self { map: HashMap::new(), client }
+        Self { map: HashMap::new(), client, portrait_style }
     }
 
     // Returns cached data if available, otherwise fetches from the API using the hero class_name.
@@ -40,7 +44,7 @@ impl HeroCache {
         use std::collections::hash_map::Entry;
         match self.map.entry(hero_key.to_owned()) {
             Entry::Occupied(e) => Some(e.into_mut()),
-            Entry::Vacant(e) => match fetch(&self.client, hero_key) {
+            Entry::Vacant(e) => match fetch(&self.client, hero_key, self.portrait_style) {
                 Ok(data) => {
                     info!("[api] Cached: {} → \"{}\"", hero_key, data.name);
                     Some(e.insert(data))
@@ -54,23 +58,23 @@ impl HeroCache {
     }
 }
 
-fn fetch(client: &reqwest::blocking::Client, hero_key: &str) -> Result<HeroData, Box<dyn std::error::Error>> {
+fn fetch(client: &reqwest::blocking::Client, hero_key: &str, portrait_style: HeroPortraitStyle) -> Result<HeroData, Box<dyn std::error::Error>> {
     debug!("[api] Fetching: {hero_key}");
 
-    if let Ok(data) = fetch_by_name(client, hero_key) {
+    if let Ok(data) = fetch_by_name(client, hero_key, portrait_style) {
         debug!("[api] Resolved via full key: {hero_key}");
         return Ok(data);
     }
 
     let stripped = hero_key.trim_start_matches("hero_");
-    if let Ok(data) = fetch_by_name(client, stripped) {
+    if let Ok(data) = fetch_by_name(client, stripped, portrait_style) {
         debug!("[api] Resolved via stripped key: {stripped}");
         return Ok(data);
     }
 
     if let Some(display_name) = dict_lookup(hero_key) {
         debug!("[api] Dict fallback: {hero_key} → \"{display_name}\"");
-        if let Ok(data) = fetch_by_name(client, display_name) {
+        if let Ok(data) = fetch_by_name(client, display_name, portrait_style) {
             debug!("[api] Resolved via dict: {display_name}");
             return Ok(data);
         }
@@ -111,14 +115,38 @@ fn dict_lookup(asset_key: &str) -> Option<&'static str> {
     }
 }
 
-fn fetch_by_name(client: &reqwest::blocking::Client, name: &str) -> Result<HeroData, Box<dyn std::error::Error>> {
+fn fetch_by_name(client: &reqwest::blocking::Client, name: &str, portrait_style: HeroPortraitStyle) -> Result<HeroData, Box<dyn std::error::Error>> {
     let url = format!("https://assets.deadlock-api.com/v2/heroes/by-name/{name}");
     debug!("[api] GET {url}");
     let hero: ApiHero = client.get(&url).send()?.json()?;
     let images = hero.images.ok_or("hero not found")?;
+    let icon_url = match portrait_style {
+        HeroPortraitStyle::Normal => {
+            debug!("[api] {name}: using normal portrait");
+            images.icon_hero_card.unwrap_or_default()
+        }
+        HeroPortraitStyle::Gloat => {
+            let gloat = images.hero_card_gloat.filter(|s| !s.is_empty());
+            if gloat.is_some() {
+                debug!("[api] {name}: using gloat portrait");
+            } else {
+                debug!("[api] {name}: gloat portrait unavailable, falling back to icon_hero_card");
+            }
+            gloat.or(images.icon_hero_card).unwrap_or_default()
+        }
+        HeroPortraitStyle::Critical => {
+            let critical = images.hero_card_critical.filter(|s| !s.is_empty());
+            if critical.is_some() {
+                debug!("[api] {name}: using critical portrait");
+            } else {
+                debug!("[api] {name}: critical portrait unavailable, falling back to icon_hero_card");
+            }
+            critical.or(images.icon_hero_card).unwrap_or_default()
+        }
+    };
     Ok(HeroData {
         name: hero.name.unwrap_or_else(|| name.trim_start_matches("hero_").to_string()),
         hideout_text: hero.hideout_rich_presence.unwrap_or_default(),
-        icon_url: images.icon_hero_card.unwrap_or_default(),
+        icon_url,
     })
 }
