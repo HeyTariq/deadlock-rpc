@@ -13,6 +13,22 @@
 
 </div>
 
+## Contents
+
+- [Preview](#preview)
+- [Features](#features)
+- [Installation](#installation)
+- [How It Works](#how-it-works)
+- [Configuration](#customization)
+  - [General](#general)
+  - [Presence](#presence)
+  - [Per-phase status strings](#per-phase-status-strings)
+  - [Images](#images)
+  - [Template variables](#template-variables)
+  - [Examples](#examples)
+- [Building from Source](#building-from-source)
+- [Disclaimer](#disclaimer)
+
 ## Preview
 
 <div align="center">
@@ -56,11 +72,13 @@ Deadlock RPC launches the game with the `-condebug` flag, which causes Deadlock 
 
 No game memory is read, no files are modified, and no network traffic is intercepted. The app is entirely read-only with respect to the game.
 
-### Customization
+## Configuration
 
 A **`config.toml`** is included in the release zip next to the executable with all options and their defaults. Edit it with any text editor — changes take effect on the next launch. Any key you omit falls back to its default, and any key added in a new release is automatically written to your file with its default value.
 
 When a release renames or restructures config keys, the release includes a migration that automatically updates your config on the next launch — no manual re-apply needed.
+
+If your config gets corrupted or causes issues, delete `config.toml` and run the app — a fresh one with all defaults will be generated automatically.
 
 ### General
 
