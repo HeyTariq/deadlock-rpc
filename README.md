@@ -58,10 +58,9 @@ No game memory is read, no files are modified, and no network traffic is interce
 
 ### Customization
 
-On first run a **`config.toml`** is created next to the executable with all options and their defaults. Edit it with any text editor — changes take effect on the next launch. Any key you omit falls back to its default, and any key added in a new release is automatically written to your file with its default value.
+A **`config.toml`** is included in the release zip next to the executable with all options and their defaults. Edit it with any text editor — changes take effect on the next launch. Any key you omit falls back to its default, and any key added in a new release is automatically written to your file with its default value.
 
-> [!WARNING]
-> Occasionally a release may rename or restructure config keys. When that happens, your old values under the renamed keys will no longer take effect and the new keys will be added with their defaults. Check the release notes before updating if you have customized your config, and re-apply any settings that changed.
+When a release renames or restructures config keys, the release includes a migration that automatically updates your config on the next launch — no manual re-apply needed.
 
 ### General
 
@@ -79,6 +78,7 @@ On first run a **`config.toml`** is created next to the executable with all opti
 | `presence.show_elapsed_timer` | `true` | Show the elapsed time counter. |
 | `presence.show_hero_image` | `true` | Show the hero image and name. |
 | `presence.show_statlocker_button` | `false` | Show a "View on Statlocker" button linking to your match history. Only visible to other Discord users, not yourself. |
+| `presence.hero_portrait_style` | `"normal"` | Hero portrait art style. Options: `"normal"`, `"gloat"` (celebration crop), `"critical"` (combat crop). |
 | `presence.details_with_hero` | `"Playing as {hero}"` | Top line when a hero is known. |
 | `presence.details_without_hero` | `"{phase}"` | Top line when no hero is known. |
 
@@ -90,7 +90,7 @@ On first run a **`config.toml`** is created next to the executable with all opti
 | `presence.status.in_main_menu` | `"Browsing the Main Menu"` |
 | `presence.status.in_hideout` | `"In the Hideout"` |
 | `presence.status.in_matchmaking` | `"Searching for a Match..."` |
-| `presence.status.loading_into_match` | `"{mode} • Loading into Match"` |
+| `presence.status.loading_into_match` | `"{mode} - Loading into Match"` |
 | `presence.status.in_match` | `"In Match: {mode}"` |
 | `presence.status.match_location_label` | `"the Cursed Apple"` |
 | `presence.status.post_match` | `"Reviewing Match Results"` |
