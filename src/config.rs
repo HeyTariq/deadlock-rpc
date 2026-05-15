@@ -183,8 +183,15 @@ pub fn load() -> Config {
         }
         Ok(text) => match toml::from_str::<Config>(&text) {
             Ok(cfg) => {
-                update_config_file(&path, &text);
+                if update_config_file(&path, &text) {
+                    // Re-read so this session uses the migrated values, not the pre-migration ones.
+                    std::fs::read_to_string(&path)
+                        .ok()
+                        .and_then(|t| toml::from_str::<Config>(&t).ok())
+                        .unwrap_or(cfg)
+                } else {
                 cfg
+                }
             }
             Err(e) => {
                 log::warn!("[config] config.toml parse error: {e} — using defaults");
@@ -195,12 +202,13 @@ pub fn load() -> Config {
 }
 
 // Applies pending migrations and fills missing keys in a single write pass.
-fn update_config_file(path: &std::path::Path, text: &str) {
+// Returns true if the file was rewritten.
+fn update_config_file(path: &std::path::Path, text: &str) -> bool {
     let Ok(mut val) = toml::from_str::<toml::Value>(text) else {
-        return;
+        return false;
     };
     let Ok(defaults) = toml::from_str::<toml::Value>(DEFAULT_TOML) else {
-        return;
+        return false;
     };
 
     let version = val
@@ -265,15 +273,24 @@ fn update_config_file(path: &std::path::Path, text: &str) {
     }
 
     if !changed {
-        return;
+        return false;
     }
 
     match toml::to_string_pretty(&val) {
         Ok(new_text) => match std::fs::write(path, new_text) {
-            Ok(_) => log::info!("[config] config.toml updated"),
-            Err(e) => log::warn!("[config] Could not update config.toml: {e}"),
+            Ok(_) => {
+                log::info!("[config] config.toml updated");
+                true
+            }
+            Err(e) => {
+                log::warn!("[config] Could not update config.toml: {e}");
+                false
+            }
         },
-        Err(e) => log::warn!("[config] Could not serialize config: {e}"),
+        Err(e) => {
+            log::warn!("[config] Could not serialize config: {e}");
+            false
+        }
     }
 }
 
