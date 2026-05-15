@@ -83,22 +83,25 @@ fn shortcut_path(exe: &std::path::Path) -> Option<PathBuf> {
 
 #[cfg(all(unix, not(debug_assertions)))]
 fn prompt_shortcut() -> bool {
-    let mut accepted = false;
-    let Ok(handle) = notify_rust::Notification::new()
-        .appname("Deadlock RPC")
-        .summary("Create Shortcut?")
-        .body("Would you like to create a shortcut in the install folder?")
-        .action("yes", "Yes")
-        .action("no", "No")
-        .show()
-    else {
-        // If we can't show a notification, default to creating the shortcut.
-        return true;
-    };
-    handle.wait_for_action(|action| {
-        accepted = action == "yes";
-    });
-    accepted
+    const TEXT: &str = "Would you like to create a desktop shortcut for Deadlock RPC?";
+
+    let zenity = std::process::Command::new("zenity")
+        .args(["--question", "--title=Deadlock RPC", "--ok-label=Yes", "--cancel-label=No"])
+        .arg(format!("--text={TEXT}"))
+        .status();
+
+    if let Ok(status) = zenity {
+        return status.success();
+    }
+
+    let kdialog = std::process::Command::new("kdialog")
+        .args(["--title", "Deadlock RPC", "--yesno", TEXT])
+        .status();
+
+    match kdialog.ok().and_then(|s| s.code()) {
+        Some(0) => true,
+        _ => false,
+    }
 }
 
 #[cfg(all(windows, not(debug_assertions)))]
