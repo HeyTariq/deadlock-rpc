@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deadlock Rich Presence: Discord Rich Presence for Deadlock</title>
+  <meta name="description" content="Show your Deadlock hero, match state, and game mode on Discord automatically. Free Rust-native app for Windows and Linux. No runtime required.">
+  <link rel="canonical" href="https://heytariq.github.io/deadlock-rpc/">
+  <link rel="icon" type="image/png" href="assets/icon.png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Deadlock Rich Presence: Discord Rich Presence for Deadlock">
+  <meta property="og:description" content="Show your Deadlock hero, match state, and game mode on Discord automatically. Free Rust-native app for Windows and Linux.">
+  <meta property="og:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
+  <meta property="og:url" content="https://heytariq.github.io/deadlock-rpc/">
+  <meta property="og:site_name" content="Deadlock Rich Presence">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Deadlock Rich Presence: Discord Rich Presence for Deadlock">
+  <meta name="twitter:description" content="Show your Deadlock hero, match state, and game mode on Discord automatically. Free Rust-native app for Windows and Linux.">
+  <meta name="twitter:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Deadlock Rich Presence",
+    "alternateName": "Deadlock RPC",
+    "description": "Discord Rich Presence for Deadlock. Automatically shows your current hero, game state, and match mode on your Discord profile in real time.",
+    "url": "https://heytariq.github.io/deadlock-rpc/",
+    "downloadUrl": "https://github.com/HeyTariq/deadlock-rpc/releases/latest",
+    "applicationCategory": "GameApplication",
+    "operatingSystem": ["Windows", "Linux"],
+    "softwareVersion": "1.0.1",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "HeyTariq",
+      "url": "https://github.com/HeyTariq"
+    },
+    "license": "https://github.com/HeyTariq/deadlock-rpc/blob/main/LICENSE",
+    "codeRepository": "https://github.com/HeyTariq/deadlock-rpc"
+  }
+  </script>
+</head>
+<body>
+  <nav aria-label="Site navigation">
+    <div class="nav-inner">
+      <a href="./" class="nav-brand">
+        <img src="assets/icon.png" alt="Deadlock RPC" width="28" height="28">
+        Deadlock RPC
+      </a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="./" class="active">Home</a></li>
+          <li><a href="download/">Download</a></li>
+          <li><a href="faq/">FAQ</a></li>
+          <li><a href="setup-guide/">Setup Guide</a></li>
+        </ul>
+        <a href="https://github.com/HeyTariq/deadlock-rpc" class="nav-github" aria-label="View on GitHub">
+          <i class="bi bi-github" aria-hidden="true"></i>
+          <span class="nav-github-label">GitHub</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container">
+      <section class="hero">
+        <span class="version-badge">v1.0.1, Windows &amp; Linux</span>
+        <img src="assets/icon.png" alt="Deadlock Rich Presence logo" class="hero-icon" width="88" height="88">
+        <h1>Deadlock Rich Presence<br>for Discord</h1>
+        <p class="hero-tagline">
+          Automatically shows your hero, match state, and game mode
+          on your Discord profile. Native Rust binary, no runtime, no bloat.
+        </p>
+
+        <div class="dl-block">
+          <a href="https://github.com/HeyTariq/deadlock-rpc/releases/latest/download/deadlock-rpc-setup-windows-x86_64.zip"
+             class="btn btn-primary"
+             id="dl-primary-win"
+             aria-label="Download Deadlock Rich Presence for Windows">
+            Download for Windows
+          </a>
+          <a href="https://github.com/HeyTariq/deadlock-rpc/releases/latest/download/deadlock-rpc-setup-linux-x86_64.zip"
+             class="btn btn-primary"
+             id="dl-primary-linux"
+             aria-label="Download Deadlock Rich Presence for Linux">
+            Download for Linux
+          </a>
+
+          <div class="dl-alts">
+            <span class="dl-alt-linux">Also for <a href="https://github.com/HeyTariq/deadlock-rpc/releases/latest/download/deadlock-rpc-setup-linux-x86_64.zip" class="link-subtle">Linux</a></span>
+            <span class="dl-alt-win">Also for <a href="https://github.com/HeyTariq/deadlock-rpc/releases/latest/download/deadlock-rpc-setup-windows-x86_64.zip" class="link-subtle">Windows</a></span>
+            <span class="dl-dot" aria-hidden="true">·</span>
+            <a href="setup-guide/" class="link-subtle">Setup Guide</a>
+            <span class="dl-dot" aria-hidden="true">·</span>
+            <a href="https://github.com/HeyTariq/deadlock-rpc/releases" class="link-subtle">All releases</a>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="demo-section">
+      <div class="container">
+        <img
+          src="assets/demo.gif"
+          alt="Deadlock Discord Rich Presence showing hero portrait, match mode, and game phase updating live on a Discord profile card"
+          class="demo-gif"
+          loading="lazy"
+          width="520"
+        >
+      </div>
+    </div>
+
+    <div class="container">
+      <section>
+        <h2>Why choose Deadlock RPC</h2>
+        <p class="section-sub">Built for performance and flexibility, not just for show</p>
+        <div class="features-grid">
+
+          <div class="feature-card">
+            <i class="bi bi-shield-check feature-icon" aria-hidden="true"></i>
+            <h3>Read-only, VAC safe</h3>
+            <p>Read-only with respect to the game. No game memory access, no injected code, no modifications to game files. Safe by design and fully auditable.</p>
+          </div>
+
+          <div class="feature-card">
+            <i class="bi bi-image feature-icon" aria-hidden="true"></i>
+            <h3>Three hero portrait styles</h3>
+            <p>Choose between normal, gloat (celebration crop), or critical (combat crop) art styles for your Discord Deadlock presence card.</p>
+          </div>
+
+          <div class="feature-card">
+            <i class="bi bi-arrow-repeat feature-icon" aria-hidden="true"></i>
+            <h3>Auto-launch and auto-exit</h3>
+            <p>Run Deadlock RPC once. It launches Deadlock for you and shuts itself down automatically when you close the game.</p>
+          </div>
+
+          <div class="feature-card">
+            <i class="bi bi-bar-chart-line feature-icon" aria-hidden="true"></i>
+            <h3>Statlocker.gg integration</h3>
+            <p>Add a clickable button to your presence so others can view your Deadlock match history on Statlocker.gg directly from Discord.</p>
+          </div>
+
+          <div class="feature-card">
+            <i class="bi bi-sliders feature-icon" aria-hidden="true"></i>
+            <h3>Deeply customizable</h3>
+            <p>Control every line of presence text, toggle the timer, and configure every option through <code>config.toml</code>. No reinstall needed.</p>
+          </div>
+
+          <div class="feature-card">
+            <i class="bi bi-terminal feature-icon" aria-hidden="true"></i>
+            <h3>Native Rust binary</h3>
+            <p>No Python interpreter, no Node.js runtime, no antivirus false positives. A single self-contained executable that starts instantly.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <section>
+        <h2>How Deadlock Discord Rich Presence works</h2>
+        <p class="section-sub">Three steps from download to live Discord status</p>
+        <div class="steps">
+          <div class="step">
+            <h3>Download and extract</h3>
+            <p>Grab the zip for Windows or Linux from the Releases page and extract it anywhere on your system.</p>
+          </div>
+          <div class="step">
+            <h3>Run Deadlock RPC</h3>
+            <p>Launch the executable. It starts Deadlock with <code>-condebug</code>, then monitors the game log for hero and state changes in real time.</p>
+          </div>
+          <div class="step">
+            <h3>Discord updates live</h3>
+            <p>Your hero name, portrait, match mode, and game phase automatically appear and update on your Discord profile as you play.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Common questions about Deadlock Discord presence</h2>
+        <p class="section-sub">Quick answers (<a href="faq/">full FAQ</a>)</p>
+        <div class="faq-list">
+          <div class="faq-item">
+            <h3>Is Deadlock RPC safe? Will I get VAC banned?</h3>
+            <p>Yes, it is safe. Deadlock RPC only reads the game log file and never touches game memory, injects code, or modifies any files. VAC targets memory manipulation, not log readers. The source code is fully open for inspection.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Does Deadlock Discord Rich Presence work on Linux?</h3>
+            <p>Yes. Pre-built Linux x86_64 binaries are on the Releases page alongside the Windows builds. Both platforms are actively tested.</p>
+          </div>
+          <div class="faq-item">
+            <h3>How do I customize my Deadlock Discord status?</h3>
+            <p>Edit <code>config.toml</code> next to the executable. Change any presence text, toggle the timer, switch hero portrait styles, or enable the Statlocker button. Changes apply on the next launch.</p>
+          </div>
+        </div>
+        <p style="margin-top: 16px; font-size: 0.875rem;"><a href="faq/">View all frequently asked questions</a></p>
+      </section>
+
+      <section class="cta-section">
+        <h2>Show your hero on Discord</h2>
+        <p>Free, open source, actively maintained. 11+ releases and counting.</p>
+        <div class="btn-group">
+          <a href="download/" class="btn btn-primary">Download Deadlock RPC</a>
+          <a href="setup-guide/" class="btn btn-secondary">Setup Guide</a>
+          <a href="https://github.com/HeyTariq/deadlock-rpc" class="btn btn-secondary">GitHub</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>Deadlock RPC, open source, <a href="https://github.com/HeyTariq/deadlock-rpc/blob/main/LICENSE">GPL-3.0 License</a></span>
+      <span>
+        <a href="https://github.com/HeyTariq/deadlock-rpc">GitHub</a>
+        ·
+        <a href="https://github.com/HeyTariq/deadlock-rpc/releases">Releases</a>
+        ·
+        <a href="faq/">FAQ</a>
+        ·
+        <a href="setup-guide/">Setup Guide</a>
+      </span>
+    </div>
+    <div class="footer-inner footer-disclaimer">
+      Not affiliated with Valve Corporation. Deadlock and all hero assets are property of Valve Corporation.
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    var isLinux = /linux/i.test(navigator.platform) && !/android/i.test(navigator.userAgent);
+    if (!isLinux) return;
+    var winBtn = document.getElementById('dl-primary-win');
+    var linuxBtn = document.getElementById('dl-primary-linux');
+    var linuxAlt = document.querySelector('.dl-alt-linux');
+    var winAlt = document.querySelector('.dl-alt-win');
+    if (winBtn) winBtn.style.display = 'none';
+    if (linuxBtn) linuxBtn.style.display = 'inline-flex';
+    if (linuxAlt) linuxAlt.style.display = 'none';
+    if (winAlt) winAlt.style.display = 'inline';
+  }());
+  </script>
+</body>
+</html>

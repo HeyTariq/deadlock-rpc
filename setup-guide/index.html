@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Guide: Deadlock Rich Presence Discord RPC Installation</title>
+  <meta name="description" content="Step-by-step guide to install and configure Deadlock Rich Presence for Discord. Covers Windows, Linux, config.toml options, and hero portrait styles.">
+  <link rel="canonical" href="https://heytariq.github.io/deadlock-rpc/setup-guide/">
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Setup Guide: Deadlock Rich Presence Discord RPC Installation">
+  <meta property="og:description" content="Step-by-step guide to install and configure Deadlock Rich Presence for Discord on Windows and Linux.">
+  <meta property="og:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
+  <meta property="og:url" content="https://heytariq.github.io/deadlock-rpc/setup-guide/">
+  <meta property="og:site_name" content="Deadlock Rich Presence">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Setup Guide: Deadlock Rich Presence Discord RPC">
+  <meta name="twitter:description" content="Step-by-step guide to install and configure Deadlock Rich Presence for Discord on Windows and Linux.">
+  <meta name="twitter:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to set up Deadlock Rich Presence for Discord",
+    "description": "Install and configure Deadlock RPC to show your hero and match state on Discord.",
+    "step": [
+      {
+        "@type": "HowToStep",
+        "name": "Download the release",
+        "text": "Go to the Releases page on GitHub and download the zip for your platform: deadlock-rpc-setup-windows-x86_64.zip or deadlock-rpc-setup-linux-x86_64.zip."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Extract the zip",
+        "text": "Extract the zip to any folder. Keep all files together; the executable writes logs to a logs/ subdirectory within that folder."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Make sure Discord is open",
+        "text": "Deadlock RPC communicates with Discord via local IPC. Discord must be running before you start Deadlock RPC."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Run Deadlock RPC",
+        "text": "Double-click deadlock-rpc.exe on Windows, or run ./deadlock-rpc on Linux. If Windows SmartScreen warns you, click More info then Run anyway."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Play Deadlock",
+        "text": "Deadlock RPC launches Deadlock automatically. Your Discord profile now shows your hero, match mode, and game phase as you play."
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <nav aria-label="Site navigation">
+    <div class="nav-inner">
+      <a href="../" class="nav-brand">
+        <img src="../assets/icon.png" alt="Deadlock RPC" width="28" height="28">
+        Deadlock RPC
+      </a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="../">Home</a></li>
+          <li><a href="../download/">Download</a></li>
+          <li><a href="../faq/">FAQ</a></li>
+          <li><a href="../setup-guide/" class="active">Setup Guide</a></li>
+        </ul>
+        <a href="https://github.com/HeyTariq/deadlock-rpc" class="nav-github" aria-label="View on GitHub">
+          <i class="bi bi-github" aria-hidden="true"></i>
+          <span class="nav-github-label">GitHub</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container">
+      <div class="page-hero">
+        <h1>Deadlock Rich Presence Setup Guide</h1>
+        <p>How to install and configure Deadlock Discord Rich Presence on Windows and Linux.</p>
+      </div>
+
+      <section>
+        <h2>Prerequisites</h2>
+        <p class="section-sub">Check these before starting</p>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <h3>Discord</h3>
+            <p>Discord must be running before you launch Deadlock RPC. Rich Presence communicates via local IPC; Discord needs to be open first.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Steam and Deadlock</h3>
+            <p>Steam must be installed and Deadlock must be in your library. Deadlock RPC locates Deadlock through the Steam registry automatically.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Windows or Linux x86_64</h3>
+            <p>Pre-built binaries are provided for 64-bit Windows and Linux. Other platforms require building from source.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Installation</h2>
+
+        <div class="guide-step">
+          <div class="guide-num">1</div>
+          <div class="guide-content">
+            <h3>Download the latest release</h3>
+            <p>
+              Go to the <a href="../download/">Download page</a> and grab the zip for your platform.
+            </p>
+            <ul>
+              <li>Windows: <code>deadlock-rpc-setup-windows-x86_64.zip</code></li>
+              <li>Linux: <code>deadlock-rpc-setup-linux-x86_64.zip</code></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">2</div>
+          <div class="guide-content">
+            <h3>Extract to a permanent location</h3>
+            <p>
+              Extract the zip to a folder you want to keep it in (the executable writes logs to a
+              <code>logs/</code> subdirectory within that folder).
+            </p>
+            <p>Good locations: <code>C:\Games\deadlock-rpc\</code> or <code>~/apps/deadlock-rpc/</code></p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">3</div>
+          <div class="guide-content">
+            <h3>Open Discord</h3>
+            <p>Make sure Discord is running. Deadlock RPC connects to Discord via its local IPC socket on startup; if Discord is not open, the presence won't appear.</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">4</div>
+          <div class="guide-content">
+            <h3>Run Deadlock RPC</h3>
+            <p><strong>Windows:</strong> double-click <code>deadlock-rpc.exe</code>. If Windows SmartScreen appears, click <strong>More info, then Run anyway</strong>.</p>
+            <p><strong>Linux:</strong> make the binary executable, then run it:</p>
+            <pre><code>chmod +x deadlock-rpc
+./deadlock-rpc</code></pre>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">5</div>
+          <div class="guide-content">
+            <h3>Play Deadlock</h3>
+            <p>
+              Deadlock RPC launches Deadlock automatically with the <code>-condebug</code> flag,
+              which causes the game to write its internal log to a file. The app monitors that file
+              and pushes updates to Discord whenever your hero, match state, or game phase changes.
+            </p>
+            <p>
+              From now on, use the <strong>Deadlock RPC</strong> shortcut (included in the zip)
+              instead of launching Deadlock directly.
+            </p>
+
+            <div class="notice">
+              <strong>Tip:</strong> Add <code>deadlock-rpc.exe</code> as a non-Steam game in your
+              Steam library to launch it from your library.
+              See <a href="https://help.steampowered.com/en/faqs/view/4B8B-9697-2338-40EC">Steam's guide</a>.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="configuration">
+        <h2>Configuration</h2>
+        <p class="section-sub">
+          All settings live in <code>config.toml</code> next to the executable.
+          Edit with any text editor. Changes take effect on the next launch.
+        </p>
+
+        <p class="table-label">General settings</p>
+        <div class="table-wrap">
+          <table class="config-table">
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Default</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>general.launch_game_on_start</code></td>
+                <td><code>true</code></td>
+                <td>Launch Deadlock automatically when Deadlock RPC starts</td>
+              </tr>
+              <tr>
+                <td><code>general.exit_when_game_closes</code></td>
+                <td><code>true</code></td>
+                <td>Exit Deadlock RPC when Deadlock closes</td>
+              </tr>
+              <tr>
+                <td><code>general.game_log_poll_interval_ms</code></td>
+                <td><code>500</code></td>
+                <td>How often (ms) to check the game log for changes</td>
+              </tr>
+              <tr>
+                <td><code>general.discord_update_interval_s</code></td>
+                <td><code>5</code></td>
+                <td>How often (seconds) to refresh your Discord presence card</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="table-label">Presence settings</p>
+        <div class="table-wrap">
+          <table class="config-table">
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Default</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>presence.show_elapsed_timer</code></td>
+                <td><code>true</code></td>
+                <td>Show the elapsed time counter on the presence card</td>
+              </tr>
+              <tr>
+                <td><code>presence.show_hero_image</code></td>
+                <td><code>true</code></td>
+                <td>Show your hero's portrait on the presence card</td>
+              </tr>
+              <tr>
+                <td><code>presence.hero_portrait_style</code></td>
+                <td><code>"normal"</code></td>
+                <td>Portrait art style: <code>"normal"</code>, <code>"gloat"</code>, or <code>"critical"</code></td>
+              </tr>
+              <tr>
+                <td><code>presence.show_statlocker_button</code></td>
+                <td><code>false</code></td>
+                <td>Add a "View on Statlocker" button linking to your match history</td>
+              </tr>
+              <tr>
+                <td><code>presence.details_with_hero</code></td>
+                <td><code>"Playing as {hero}"</code></td>
+                <td>Top line of the presence card when a hero is known</td>
+              </tr>
+              <tr>
+                <td><code>presence.details_without_hero</code></td>
+                <td><code>"{phase}"</code></td>
+                <td>Top line of the presence card when no hero is selected</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="table-label">Example configurations</p>
+
+        <p style="font-size: 0.875rem; color: var(--muted); margin-bottom: 8px;">Minimal presence, no hero name, no timer:</p>
+        <pre><code>[presence]
+show_elapsed_timer = false
+details_with_hero  = "Playing Deadlock"
+details_without_hero = "Playing Deadlock"</code></pre>
+
+        <p style="font-size: 0.875rem; color: var(--muted); margin: 16px 0 8px;">Gloat portrait style with Statlocker button:</p>
+        <pre><code>[presence]
+hero_portrait_style = "gloat"
+show_statlocker_button = true</code></pre>
+
+        <p style="font-size: 0.875rem; color: var(--muted); margin: 16px 0 8px;">Custom status text per game phase:</p>
+        <pre><code>[presence.status]
+in_match       = "Grinding {mode}"
+in_matchmaking = "Waiting for a game..."
+in_hideout     = "Chilling in the Hideout"</code></pre>
+
+        <div class="notice">
+          If your config file is corrupted or causes issues, delete it and launch Deadlock RPC again
+          to regenerate it with all defaults.
+        </div>
+      </section>
+
+      <section>
+        <h2>Template variables</h2>
+        <p class="section-sub">Use these in any presence text string</p>
+        <div class="table-wrap">
+          <table class="config-table">
+            <thead>
+              <tr>
+                <th>Variable</th>
+                <th>Available in</th>
+                <th>Example value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>{hero}</code></td>
+                <td><code>details_with_hero</code>, <code>in_hideout</code></td>
+                <td>Vindicta</td>
+              </tr>
+              <tr>
+                <td><code>{phase}</code></td>
+                <td><code>details_without_hero</code></td>
+                <td>Post Match</td>
+              </tr>
+              <tr>
+                <td><code>{mode}</code></td>
+                <td><code>loading_into_match</code>, <code>in_match</code></td>
+                <td>Standard Match</td>
+              </tr>
+              <tr>
+                <td><code>{location}</code></td>
+                <td><code>in_match</code></td>
+                <td>the Cursed Apple</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Troubleshooting</h2>
+
+        <div class="faq-list">
+          <div class="faq-item">
+            <h3>Discord presence is not showing</h3>
+            <p>Make sure Discord is open before starting Deadlock RPC. Rich Presence must also be enabled: open Discord, go to Settings, then Activity Privacy, and make sure "Share your activity with others" is on.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Hero image is not updating</h3>
+            <p>Hero detection relies on the game log. Make sure Deadlock was launched through Deadlock RPC, not directly. The app passes <code>-condebug</code> to Deadlock on launch; without this flag, no log file is written and hero detection does not work.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Deadlock RPC can't find the game</h3>
+            <p>Deadlock RPC locates Deadlock through the Steam installation registry. Make sure Steam is installed and Deadlock is in your library. If you moved your Steam installation, relaunch Steam to refresh the registry entries.</p>
+          </div>
+          <div class="faq-item">
+            <h3>The config file is missing</h3>
+            <p>The config file is generated on first launch. Run Deadlock RPC once and it will create <code>config.toml</code> with all defaults. If it's still missing, check that the executable has write access to its own directory.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta-section">
+        <h2>Still have questions?</h2>
+        <p>The FAQ covers VAC safety, Linux support, portrait styles, and more.</p>
+        <div class="btn-group">
+          <a href="../faq/" class="btn btn-primary">Read the FAQ</a>
+          <a href="https://github.com/HeyTariq/deadlock-rpc/issues" class="btn btn-secondary">Open a GitHub Issue</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>Deadlock RPC, open source, <a href="https://github.com/HeyTariq/deadlock-rpc/blob/main/LICENSE">GPL-3.0 License</a></span>
+      <span>
+        <a href="https://github.com/HeyTariq/deadlock-rpc">GitHub</a>
+        ·
+        <a href="https://github.com/HeyTariq/deadlock-rpc/releases">Releases</a>
+        ·
+        <a href="../download/">Download</a>
+        ·
+        <a href="../faq/">FAQ</a>
+      </span>
+    </div>
+    <div class="footer-inner footer-disclaimer">
+      Not affiliated with Valve Corporation. Deadlock and all hero assets are property of Valve Corporation.
+    </div>
+  </footer>
+</body>
+</html>

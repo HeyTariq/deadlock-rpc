@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ: Deadlock Rich Presence Discord RPC Questions Answered</title>
+  <meta name="description" content="Answers to common questions about Deadlock Rich Presence: VAC safety, Linux support, hero portraits, Statlocker, customization, and more.">
+  <link rel="canonical" href="https://heytariq.github.io/deadlock-rpc/faq/">
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="FAQ: Deadlock Rich Presence Discord RPC Questions Answered">
+  <meta property="og:description" content="Answers to common questions about Deadlock Rich Presence: VAC safety, Linux support, hero portraits, Statlocker, and customization.">
+  <meta property="og:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
+  <meta property="og:url" content="https://heytariq.github.io/deadlock-rpc/faq/">
+  <meta property="og:site_name" content="Deadlock Rich Presence">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="FAQ: Deadlock Rich Presence Discord RPC">
+  <meta name="twitter:description" content="Common questions about Deadlock Rich Presence: VAC safety, Linux support, hero portraits, customization, and more.">
+  <meta name="twitter:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is Deadlock Rich Presence?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Deadlock Rich Presence (Deadlock RPC) is a free, open-source app that displays your current Deadlock hero, match state, and game mode on your Discord profile in real time. It works by monitoring Deadlock's internal log file and pushing updates to Discord via its IPC protocol."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Deadlock RPC safe? Will I get VAC banned?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, it is safe. Deadlock RPC only reads the game's log file. It never reads game memory, injects any code, hooks any process, or modifies game files. Valve's VAC system targets memory manipulation and code injection, not log file readers. The full source code is available on GitHub for independent inspection."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I show my Deadlock hero on Discord?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Download Deadlock Rich Presence from the Releases page on GitHub, extract the zip, and run the executable. It automatically launches Deadlock and starts updating your Discord profile with your hero, game phase, and match mode as you play."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Deadlock Rich Presence work on Linux?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Pre-built Linux x86_64 binaries are available on the Releases page alongside Windows builds. Both platforms are supported and actively maintained."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I customize my Deadlock Discord presence?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Edit config.toml in the same folder as the executable using any text editor. You can change the presence text for each game phase, toggle the elapsed timer, switch hero portrait styles (normal, gloat, or critical), and enable the Statlocker.gg button. Changes take effect on the next launch."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What hero portrait styles are available in Deadlock RPC?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Deadlock RPC supports three hero portrait art styles: normal (the standard hero card), gloat (a celebration crop of the hero art), and critical (a combat-focused crop). Set the style using the hero_portrait_style option in config.toml."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the Statlocker.gg integration?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When enabled in config.toml, Deadlock RPC adds a clickable View on Statlocker button to your Discord presence card. Other Discord users can click it to see your Deadlock match history on statlocker.gg. The button is only visible to others, not to yourself."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does Windows SmartScreen warn me about Deadlock RPC?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Windows SmartScreen shows a Windows protected your PC warning for executables that are not signed with a code signing certificate. This is a generic Microsoft warning about unsigned software, not an indication of malware. Click More info, then Run anyway to proceed. You can also build Deadlock RPC from source to verify the binary yourself."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I auto-launch Deadlock with Deadlock RPC?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "By default, Deadlock RPC launches Deadlock automatically when you start it. The setting launch_game_on_start in config.toml controls this behavior and is enabled by default. Simply use the Deadlock RPC executable or shortcut instead of launching Deadlock directly."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I update Deadlock RPC to a new version?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On launch, Deadlock RPC checks for updates and prompts you to apply one if available. You can also download any release directly from the GitHub Releases page, extract it alongside your existing config.toml, and replace the old executable. Your config file will be automatically migrated if any settings changed."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body class="faq-page">
+  <nav aria-label="Site navigation">
+    <div class="nav-inner">
+      <a href="../" class="nav-brand">
+        <img src="../assets/icon.png" alt="Deadlock RPC" width="28" height="28">
+        Deadlock RPC
+      </a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="../">Home</a></li>
+          <li><a href="../download/">Download</a></li>
+          <li><a href="../faq/" class="active">FAQ</a></li>
+          <li><a href="../setup-guide/">Setup Guide</a></li>
+        </ul>
+        <a href="https://github.com/HeyTariq/deadlock-rpc" class="nav-github" aria-label="View on GitHub">
+          <i class="bi bi-github" aria-hidden="true"></i>
+          <span class="nav-github-label">GitHub</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container">
+      <div class="page-hero">
+        <h1>Deadlock Rich Presence FAQ</h1>
+        <p>Common questions about Deadlock Discord Rich Presence: safety, Linux support, hero portraits, and customization.</p>
+      </div>
+
+      <section>
+        <div class="faq-list">
+
+          <div class="faq-item">
+            <h3>What is Deadlock Rich Presence?</h3>
+            <p>
+              Deadlock Rich Presence (Deadlock RPC) is a free, open-source app that displays your current
+              Deadlock hero, match state, and game mode on your Discord profile in real time.
+              It monitors Deadlock's internal log file and pushes updates to Discord via its IPC protocol.
+              No game modifications, no memory reads.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>Is Deadlock RPC safe? Will I get VAC banned?</h3>
+            <p>
+              Yes, it is safe. Deadlock RPC only reads the game's log file. It never reads game memory,
+              injects code, hooks processes, or modifies any game files. Valve's VAC system targets
+              memory manipulation and code injection, not log file readers. The full source code is
+              on <a href="https://github.com/HeyTariq/deadlock-rpc">GitHub</a> for anyone to inspect.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>How do I show my Deadlock hero on Discord?</h3>
+            <p>
+              Download the app from the <a href="../download/">Download page</a>, extract the zip,
+              and run the executable. Deadlock RPC starts Deadlock automatically and begins showing
+              your hero, game phase, and match mode on Discord as you play. No additional configuration
+              is needed to get started.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>Does Deadlock Rich Presence work on Linux?</h3>
+            <p>
+              Yes. Pre-built Linux x86_64 binaries ship on every release alongside the Windows builds.
+              Both platforms are actively supported and tested. See the <a href="../download/">Download page</a>
+              for Linux-specific install steps.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>How do I customize my Deadlock Discord presence?</h3>
+            <p>
+              Edit <code>config.toml</code> in the same folder as the executable. You can change the
+              presence text for each game phase (menu, hideout, queuing, in match, post match), toggle
+              the elapsed timer, switch hero portrait art styles, and enable the Statlocker.gg button.
+              Any key you omit falls back to the default. Changes take effect on the next launch.
+            </p>
+            <p>See the <a href="../setup-guide/#configuration">configuration section</a> of the setup guide for examples.</p>
+          </div>
+
+          <div class="faq-item">
+            <h3>What hero portrait styles are available?</h3>
+            <p>
+              Three art styles are supported, set via <code>hero_portrait_style</code> in <code>config.toml</code>:
+            </p>
+            <ul>
+              <li><strong style="color: var(--text);">normal</strong>: the standard hero card image</li>
+              <li><strong style="color: var(--text);">gloat</strong>: a celebration crop of the hero artwork</li>
+              <li><strong style="color: var(--text);">critical</strong>: a combat-focused crop of the hero artwork</li>
+            </ul>
+          </div>
+
+          <div class="faq-item">
+            <h3>What is the Statlocker.gg integration?</h3>
+            <p>
+              When <code>show_statlocker_button = true</code> is set in <code>config.toml</code>,
+              Deadlock RPC adds a clickable "View on Statlocker" button to your Discord presence card.
+              Other Discord users can click it to see your Deadlock match history on
+              <a href="https://statlocker.gg">statlocker.gg</a>. Discord hides the button from your
+              own view. Only others see it.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>Why does Windows SmartScreen warn me about Deadlock RPC?</h3>
+            <p>
+              SmartScreen shows a "Windows protected your PC" dialog for unsigned executables,
+              software without a paid code-signing certificate. This is a generic Microsoft policy,
+              not a malware detection. Click <strong>More info, then Run anyway</strong> to proceed.
+              If you prefer, you can <a href="https://github.com/HeyTariq/deadlock-rpc">build from source</a>
+              to verify the binary yourself.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>How do I launch Deadlock automatically with Deadlock RPC?</h3>
+            <p>
+              By default, Deadlock RPC launches Deadlock for you when you run it. The
+              <code>launch_game_on_start</code> setting in <code>config.toml</code> controls this
+              and is enabled by default. Just use the Deadlock RPC executable or its shortcut instead of
+              launching Deadlock directly. Deadlock RPC also exits itself when you close the game
+              (<code>exit_when_game_closes = true</code> by default).
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>How do I update to a new version of Deadlock RPC?</h3>
+            <p>
+              On launch, Deadlock RPC checks for updates and prompts you to apply one if available.
+              You can also download any release directly from the
+              <a href="https://github.com/HeyTariq/deadlock-rpc/releases">GitHub Releases page</a>,
+              extract it, and replace the old executable. Your <code>config.toml</code> is preserved
+              and automatically migrated if any settings changed in the new release.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="cta-section">
+        <h2>Ready to get started?</h2>
+        <p>Download Deadlock Rich Presence and show your hero on Discord.</p>
+        <div class="btn-group">
+          <a href="../download/" class="btn btn-primary">Download Deadlock RPC</a>
+          <a href="../setup-guide/" class="btn btn-secondary">Setup Guide</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>Deadlock RPC, open source, <a href="https://github.com/HeyTariq/deadlock-rpc/blob/main/LICENSE">GPL-3.0 License</a></span>
+      <span>
+        <a href="https://github.com/HeyTariq/deadlock-rpc">GitHub</a>
+        ·
+        <a href="https://github.com/HeyTariq/deadlock-rpc/releases">Releases</a>
+        ·
+        <a href="../download/">Download</a>
+        ·
+        <a href="../setup-guide/">Setup Guide</a>
+      </span>
+    </div>
+    <div class="footer-inner footer-disclaimer">
+      Not affiliated with Valve Corporation. Deadlock and all hero assets are property of Valve Corporation.
+    </div>
+  </footer>
+</body>
+</html>
