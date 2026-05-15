@@ -1,9 +1,9 @@
 <div align="center">
   <img src="assets/icon.png" alt="Deadlock RPC" width="120" />
 
-  # Deadlock RPC
+  # Deadlock Rich Presence for Discord
 
-  Discord Rich Presence for Deadlock. Automatically shows your current hero, game state, and match mode on your Discord profile in real time.
+  Show your Deadlock hero, match mode, and game phase on your Discord profile automatically. Free, open-source, native Rust binary for Windows and Linux. No runtime required.
 
   [![Latest Release](https://img.shields.io/github/v/release/HeyTariq/deadlock-rpc?&label=release)](https://github.com/HeyTariq/deadlock-rpc/releases/latest)
   [![Downloads](https://img.shields.io/github/downloads/HeyTariq/deadlock-rpc/total?)](https://github.com/HeyTariq/deadlock-rpc/releases)
@@ -32,18 +32,19 @@
 ## Preview
 
 <div align="center">
-  <img src="assets/demo.gif" alt="Deadlock RPC in action" />
+  <img src="assets/demo.gif" alt="Deadlock Discord Rich Presence showing hero portrait, match mode, and game phase updating live on a Discord profile card" />
 </div>
 
 ## Features
 
-- **Hero display:** current hero name and card image
-- **Game state tracking:** Hideout, In Queue, Match Intro, In Match, Post Match, Spectating
+- **Hero portrait display:** shows hero name and portrait on your Discord presence card with three art styles (normal, gloat, critical)
+- **Game phase tracking:** Hideout, In Queue, Match Intro, In Match, Post Match, Spectating
 - **Match mode detection:** Standard, Street Brawl, Training Range, and more
-- **Auto-launch:** launches Deadlock with the required flag automatically
-- **Auto-exit:** closes itself when you close Deadlock
-- **Statlocker button:** optional clickable button on your presence card linking to your match history on [statlocker.gg](https://statlocker.gg)
-- **Customizable:** presence text, timer, hero display, poll rate, and more via `config.toml`
+- **Read-only and VAC safe:** reads only the game log file, no memory access, no code injection, no game files modified
+- **Auto-launch and auto-exit:** launches Deadlock automatically and closes when the game does
+- **Native Rust binary:** no Python, no Node.js, no runtime dependencies, single self-contained executable
+- **Statlocker.gg button:** optional clickable button on your Deadlock Discord presence linking to your match history
+- **Deeply customizable:** presence text, timer, hero portrait style, poll rate, and more via `config.toml`
 
 ## Installation
 
@@ -68,9 +69,9 @@ Windows may show a **"Windows protected your PC"** warning on first run. This is
 
 ## How It Works
 
-Deadlock RPC launches the game with the `-condebug` flag, which causes Deadlock to write its internal console output to a log file. The app monitors this file in real time, parsing log lines to detect hero selection, map loads, phase transitions, and match mode. State changes are pushed to Discord via its IPC protocol.
+Deadlock RPC launches the game with the `-condebug` flag, which causes Deadlock to write its console output to a log file. The app monitors this file in real time, parsing log lines to detect hero selection, map loads, game phase transitions, and match mode. Detected state is pushed to Discord via its IPC protocol, updating your Discord status live as you play.
 
-No game memory is read, no files are modified, and no network traffic is intercepted. The app is entirely read-only with respect to the game.
+No game memory is read, no files are modified, and no network traffic is intercepted. It is entirely read-only with respect to the game, making it VAC safe by design.
 
 ## Configuration
 
