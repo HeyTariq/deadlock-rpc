@@ -130,7 +130,16 @@
           <i class="bi bi-github" aria-hidden="true"></i>
           <span class="nav-github-label">GitHub</span>
         </a>
+        <button class="nav-hamburger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-mobile-menu">
+          <i class="bi bi-list" aria-hidden="true"></i>
+        </button>
       </div>
+    </div>
+    <div class="nav-mobile-menu" id="nav-mobile-menu">
+      <a href="../">Home</a>
+      <a href="../download/">Download</a>
+      <a href="../faq/" class="active">FAQ</a>
+      <a href="../setup-guide/">Setup Guide</a>
     </div>
   </nav>
 
@@ -281,5 +290,22 @@
       Not affiliated with Valve Corporation. Deadlock and all hero assets are property of Valve Corporation.
     </div>
   </footer>
+  <script>
+  (function () {
+    var btn = document.querySelector('.nav-hamburger');
+    var menu = document.getElementById('nav-mobile-menu');
+    if (!btn || !menu) return;
+    btn.addEventListener('click', function () {
+      var open = menu.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) {
+      if (!menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }());
+  </script>
 </body>
 </html>
