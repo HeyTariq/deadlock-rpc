@@ -199,6 +199,27 @@ mod linux {
                 .into(),
                 ksni::MenuItem::Separator,
                 StandardItem {
+                    label: "Latest Changes".to_string(),
+                    activate: Box::new(|_| {
+                        let _ = std::process::Command::new("xdg-open")
+                            .arg("https://github.com/HeyTariq/deadlock-rpc/releases/latest")
+                            .spawn();
+                    }),
+                    ..Default::default()
+                }
+                .into(),
+                StandardItem {
+                    label: "Source Code".to_string(),
+                    activate: Box::new(|_| {
+                        let _ = std::process::Command::new("xdg-open")
+                            .arg("https://github.com/HeyTariq/deadlock-rpc")
+                            .spawn();
+                    }),
+                    ..Default::default()
+                }
+                .into(),
+                ksni::MenuItem::Separator,
+                StandardItem {
                     label: "Quit".to_string(),
                     activate: Box::new(|_| std::process::exit(0)),
                     ..Default::default()
@@ -317,6 +338,11 @@ mod windows {
             ])
             .unwrap();
 
+        let open_config_item = MenuItem::new("Open Config File", true, None);
+        let latest_changes_item = MenuItem::new("Latest Changes", true, None);
+        let source_code_item = MenuItem::new("Source Code", true, None);
+        let quit_item = MenuItem::new("Quit", true, None);
+
         let settings_menu = Submenu::new("Settings", true);
         settings_menu
             .append_items(&[
@@ -331,9 +357,6 @@ mod windows {
             ])
             .unwrap();
 
-        let open_config_item = MenuItem::new("Open Config File", true, None);
-        let quit_item = MenuItem::new("Quit", true, None);
-
         let launch_id = launch_item.id().clone();
         let exit_id = exit_item.id().clone();
         let hero_id = hero_item.id().clone();
@@ -342,10 +365,15 @@ mod windows {
         let portrait_gloat_id = portrait_gloat_item.id().clone();
         let portrait_critical_id = portrait_critical_item.id().clone();
         let open_config_id = open_config_item.id().clone();
+        let latest_changes_id = latest_changes_item.id().clone();
+        let source_code_id = source_code_item.id().clone();
         let quit_id = quit_item.id().clone();
 
         let menu = Menu::new();
         menu.append(&settings_menu).unwrap();
+        menu.append(&PredefinedMenuItem::separator()).unwrap();
+        menu.append(&latest_changes_item).unwrap();
+        menu.append(&source_code_item).unwrap();
         menu.append(&PredefinedMenuItem::separator()).unwrap();
         menu.append(&quit_item).unwrap();
 
@@ -375,6 +403,14 @@ mod windows {
                                 .args(["/c", "start", "", p])
                                 .spawn();
                         }
+                    } else if event.id == latest_changes_id {
+                        let _ = std::process::Command::new("cmd")
+                            .args(["/c", "start", "", "https://github.com/HeyTariq/deadlock-rpc/releases/latest"])
+                            .spawn();
+                    } else if event.id == source_code_id {
+                        let _ = std::process::Command::new("cmd")
+                            .args(["/c", "start", "", "https://github.com/HeyTariq/deadlock-rpc"])
+                            .spawn();
                     } else if event.id == quit_id {
                         std::process::exit(0);
                     } else if event.id == launch_id {
