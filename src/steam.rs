@@ -4,10 +4,43 @@ use std::sync::OnceLock;
 const DEADLOCK_APP_ID: &str = "1422450";
 const CONSOLE_LOG_SUFFIX: &str = "game/citadel/console.log";
 
-pub fn find_console_log() -> PathBuf {
-    try_find_console_log().unwrap_or_else(|| {
-        default_fallback().join(CONSOLE_LOG_SUFFIX)
-    })
+pub fn find_console_log(game_folder_override: Option<&str>) -> PathBuf {
+    // User-configured path takes priority over auto-detection.
+    if let Some(folder) = game_folder_override.filter(|s| !s.is_empty()) {
+        let game_dir = std::path::Path::new(folder);
+        let ends_with_deadlock = game_dir
+            .file_name()
+            .and_then(|n| n.to_str())
+            .map(|n| n.eq_ignore_ascii_case("Deadlock"))
+            .unwrap_or(false);
+        if !ends_with_deadlock {
+            log::warn!(
+                "[steam] game_folder does not end with \"Deadlock\": {}",
+                game_dir.display()
+            );
+        }
+        let path = game_dir.join(CONSOLE_LOG_SUFFIX);
+        log::info!("[steam] Using configured game_folder: {}", path.display());
+        return path;
+    }
+
+    match try_find_console_log() {
+        Some(path) => path,
+        None => {
+            let fallback = default_fallback().join(CONSOLE_LOG_SUFFIX);
+            log::warn!(
+                "[steam] Deadlock not found in Steam library. Using fallback path: {}. \
+                If Deadlock is installed in a custom Steam library, set game_folder in config.toml.",
+                fallback.display()
+            );
+            crate::notify::alert(
+                "Deadlock could not be found in your Steam library.\n\
+                Rich presence may not update. Set game_folder in config.toml \
+                to your Deadlock install folder.",
+            );
+            fallback
+        }
+    }
 }
 
 static VDF_PATTERNS: OnceLock<(regex::Regex, regex::Regex)> = OnceLock::new();

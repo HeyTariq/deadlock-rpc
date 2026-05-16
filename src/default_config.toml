@@ -3,6 +3,9 @@ launch_game_on_start = true
 exit_when_game_closes = true
 game_log_poll_interval_ms = 500
 discord_update_interval_s = 5
+# Override the Deadlock install location if auto-detection fails.
+# Example: steamapps\common\Deadlock
+game_folder = ""
 # Managed automatically — do not edit.
 config_version = 2
 

@@ -6,6 +6,7 @@ mod hero_api;
 mod launcher;
 mod logger;
 mod log_watcher;
+mod notify;
 mod process_watcher;
 mod steam;
 mod tray;
@@ -27,6 +28,7 @@ type LastRpcState = (GamePhase, MatchMode, Option<String>, u8, Option<String>, O
 
 fn connect_discord(app_id: &str) -> DiscordIpcClient {
     let mut client = DiscordIpcClient::new(app_id);
+    let mut notified = false;
     loop {
         match client.connect() {
             Ok(_) => {
@@ -34,7 +36,14 @@ fn connect_discord(app_id: &str) -> DiscordIpcClient {
                 return client;
             }
             Err(e) => {
-                warn!("[discord] Connect failed: {e}. Retrying in 10s...");
+                warn!("[discord] Connect failed: {e}. Make sure Discord is open. Retrying in 10s...");
+                if !notified {
+                    notify::alert(
+                        "Discord is not running.\n\
+                        Open Discord, and Deadlock RPC will connect automatically.",
+                    );
+                    notified = true;
+                }
                 thread::sleep(Duration::from_secs(10));
             }
         }
@@ -243,7 +252,7 @@ std::process::exit(0);
                 last_state = Some(current);
             }
             Err(e) => {
-                warn!("[rpc] set_activity error: {e}. Reconnecting...");
+                warn!("[rpc] set_activity error: {e}. Discord may have closed. Reconnecting...");
                 let _ = client.reconnect();
             }
         }
@@ -303,7 +312,7 @@ fn main() {
         launcher::launch_deadlock();
     }
 
-    let log_path = steam::find_console_log();
+    let log_path = steam::find_console_log(cfg.general.game_folder.as_deref());
     info!("[deadlock-rpc] Monitoring: {}", log_path.display());
 
     let state = Arc::new(Mutex::new(GameState::new()));

@@ -93,6 +93,7 @@ impl LogWatcher {
         let mut last_pos: u64 = 0;
         let mut initialized = false;
         let mut last_activity = std::time::Instant::now();
+        let mut logged_waiting = false;
 
         loop {
             if !self.log_path.exists() {
@@ -102,6 +103,10 @@ impl LogWatcher {
                     gs.reset();
                     initialized = false;
                     last_pos = 0;
+                    logged_waiting = false;
+                } else if !logged_waiting {
+                    info!("[watcher] Waiting for Deadlock log at: {}", self.log_path.display());
+                    logged_waiting = true;
                 }
                 thread::sleep(Duration::from_secs(2));
                 continue;

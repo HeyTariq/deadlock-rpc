@@ -68,17 +68,6 @@ fn extract_binary(zip_bytes: &[u8]) -> Result<Vec<u8>, Box<dyn std::error::Error
     Ok(out)
 }
 
-#[cfg(not(windows))]
-fn notify(body: &str) {
-    let _ = notify_rust::Notification::new()
-        .appname("Deadlock RPC")
-        .summary("Deadlock RPC")
-        .body(body)
-        .show();
-}
-
-#[cfg(windows)]
-fn notify(_body: &str) {}
 
 // Debug-only: simulates an update prompt for v99.9.9, fake-downloads, then
 // re-execs the binary without `--simulate-update` to mimic a post-update launch.
@@ -99,7 +88,7 @@ pub fn simulate_update() {
     }
 
     debug!("[updater] Simulating download (3s)...");
-    notify("Downloading and installing update, launching shortly...");
+    crate::notify::alert("Downloading and installing update. The app will restart shortly.");
     std::thread::sleep(std::time::Duration::from_secs(3));
     debug!("[updater] Simulated download complete, restarting...");
 
@@ -135,7 +124,6 @@ pub fn simulate_update() {
 pub fn check_on_startup() {
     if let Err(e) = try_check() {
         warn!("[updater] Check failed: {e}");
-        notify("Update failed — check logs for details.");
     }
 }
 
@@ -185,7 +173,7 @@ fn try_check() -> Result<(), Box<dyn std::error::Error>> {
         .ok_or("release asset has no digest; refusing to install unverified update")?;
     verify_sha256(&zip_bytes, digest)?;
     info!("[updater] Checksum verified ok");
-    notify("Downloading and installing update, launching shortly...");
+    crate::notify::alert("Downloading and installing update. The app will restart shortly.");
 
     let new_binary = extract_binary(&zip_bytes)?;
     info!("[updater] Extracted binary ({} bytes), writing to disk...", new_binary.len());

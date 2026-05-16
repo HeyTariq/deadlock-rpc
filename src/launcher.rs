@@ -8,7 +8,13 @@ pub fn launch_deadlock() {
     info!("[launcher] Launching Deadlock with -condebug...");
     match launch_via_steam() {
         Ok(_) => info!("[launcher] Steam launch initiated."),
-        Err(e) => warn!("[launcher] Failed to launch Deadlock: {e}"),
+        Err(e) => {
+            warn!("[launcher] Failed to launch Deadlock: {e}");
+            crate::notify::alert(
+                "Failed to launch Deadlock.\n\
+                Make sure Steam is installed and running, then launch the game manually.",
+            );
+        }
     }
 }
 
