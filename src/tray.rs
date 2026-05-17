@@ -199,6 +199,14 @@ mod linux {
                 .into(),
                 ksni::MenuItem::Separator,
                 StandardItem {
+                    label: "Check for Updates".to_string(),
+                    activate: Box::new(|_| {
+                        std::thread::spawn(crate::updater::check_from_tray);
+                    }),
+                    ..Default::default()
+                }
+                .into(),
+                StandardItem {
                     label: "Latest Changes".to_string(),
                     activate: Box::new(|_| {
                         let _ = std::process::Command::new("xdg-open")
@@ -339,6 +347,7 @@ mod windows {
             .unwrap();
 
         let open_config_item = MenuItem::new("Open Config File", true, None);
+        let check_updates_item = MenuItem::new("Check for Updates", true, None);
         let latest_changes_item = MenuItem::new("Latest Changes", true, None);
         let source_code_item = MenuItem::new("Source Code", true, None);
         let quit_item = MenuItem::new("Quit", true, None);
@@ -365,6 +374,7 @@ mod windows {
         let portrait_gloat_id = portrait_gloat_item.id().clone();
         let portrait_critical_id = portrait_critical_item.id().clone();
         let open_config_id = open_config_item.id().clone();
+        let check_updates_id = check_updates_item.id().clone();
         let latest_changes_id = latest_changes_item.id().clone();
         let source_code_id = source_code_item.id().clone();
         let quit_id = quit_item.id().clone();
@@ -372,6 +382,7 @@ mod windows {
         let menu = Menu::new();
         menu.append(&settings_menu).unwrap();
         menu.append(&PredefinedMenuItem::separator()).unwrap();
+        menu.append(&check_updates_item).unwrap();
         menu.append(&latest_changes_item).unwrap();
         menu.append(&source_code_item).unwrap();
         menu.append(&PredefinedMenuItem::separator()).unwrap();
@@ -403,6 +414,8 @@ mod windows {
                                 .args(["/c", "start", "", p])
                                 .spawn();
                         }
+                    } else if event.id == check_updates_id {
+                        std::thread::spawn(crate::updater::check_from_tray);
                     } else if event.id == latest_changes_id {
                         let _ = std::process::Command::new("cmd")
                             .args(["/c", "start", "", "https://github.com/HeyTariq/deadlock-rpc/releases/latest"])
