@@ -3,7 +3,7 @@
 
   # Deadlock Rich Presence for Discord
 
-  Show your Deadlock hero, match mode, and game phase on your Discord profile automatically. Free, open-source, native Rust binary for Windows and Linux. No runtime required.
+  Show your Deadlock hero, match mode, and game phase on your Discord profile automatically. Free, open-source, native Rust binary for Windows and Linux.
 
   [![CI](https://github.com/HeyTariq/deadlock-rpc/actions/workflows/ci.yml/badge.svg)](https://github.com/HeyTariq/deadlock-rpc/actions/workflows/ci.yml)
   [![Latest Release](https://img.shields.io/github/v/release/HeyTariq/deadlock-rpc?&label=release)](https://github.com/HeyTariq/deadlock-rpc/releases/latest)
@@ -16,19 +16,16 @@
 
 ## Contents
 
-- [Preview](#preview)
-- [Features](#features)
-- [Installation](#installation)
-- [How It Works](#how-it-works)
-- [Configuration](#configuration)
-  - [General](#general)
-  - [Presence](#presence)
-  - [Per-phase status strings](#per-phase-status-strings)
-  - [Images](#images)
-  - [Template variables](#template-variables)
-  - [Examples](#examples)
-- [Building from Source](#building-from-source)
-- [Disclaimer](#disclaimer)
+- [Deadlock Rich Presence for Discord](#deadlock-rich-presence-for-discord)
+  - [Contents](#contents)
+  - [Preview](#preview)
+  - [Features](#features)
+  - [Installation](#installation)
+    - [Windows SmartScreen](#windows-smartscreen)
+  - [How It Works](#how-it-works)
+  - [Configuration](#configuration)
+  - [Building from Source](#building-from-source)
+  - [Disclaimer](#disclaimer)
 
 ## Preview
 
@@ -38,50 +35,67 @@
 
 ## Features
 
-- **Hero portrait display:** shows hero name and portrait on your Discord presence card with three art styles (normal, gloat, critical)
-- **Game phase tracking:** Hideout, In Queue, Match Intro, In Match, Post Match, Spectating
-- **Match mode detection:** Standard, Street Brawl, Training Range, and more
-- **Read-only and VAC safe:** reads only the game log file, no memory access, no code injection, no game files modified
-- **Auto-launch and auto-exit:** launches Deadlock automatically and closes when the game does
-- **Native Rust binary:** no Python, no Node.js, no runtime dependencies, single self-contained executable
-- **Statlocker.gg button:** optional clickable button on your Deadlock Discord presence linking to your match history
-- **Deeply customizable:** presence text, timer, hero portrait style, poll rate, and more via `config.toml`
+- Live hero portrait, game phase, and match mode on your Discord profile, updating as you play
+- Three portrait styles: normal, gloat, and critical
+- VAC safe, read-only, zero footprint: reads only the game log, touches nothing else
+- Single native binary, no runtime or dependencies required
+- Tray icon for quick settings, auto-launches with Deadlock, auto-exits when you close it
+- Optional Statlocker.gg button so others can view your match history from your profile
 
 ## Installation
 
-1. Go to the [Releases](../../releases) page
-2. Download and extract the zip for your platform:
-   - **Windows:** `deadlock-rpc-setup-windows-x86_64.zip`
-   - **Linux:** `deadlock-rpc-setup-linux-x86_64.zip`
-3. Run the binary inside the extracted folder:
-   - **Windows:** double-click `deadlock-rpc.exe`
-   - **Linux:** `chmod +x deadlock-rpc && ./deadlock-rpc`
-4. A shortcut named **Deadlock RPC** is created in the extracted folder. Move it to your desktop or wherever is convenient
-5. Deadlock launches with Rich Presence active
+**Windows**
 
-From this point forward, use the **Deadlock RPC** shortcut instead of launching Deadlock directly. Be sure to keep the executable within the extracted folder as it writes logs to the `logs/` directory.
+1. Download `deadlock-rpc-setup-windows-x86_64.zip` from the [Releases](../../releases) page
+2. Extract the zip anywhere on your PC
+3. Double-click `deadlock-rpc.exe` inside the extracted folder
+4. A **Deadlock RPC** shortcut is created in the folder. Move it to your desktop for easy access
+
+> [!WARNING]
+> Windows may show a **"Windows protected your PC"** warning. This happens because the app is not signed, not because it is harmful. Click **More info**, then **Run anyway**.
+
+**Linux**
+
+1. Download `deadlock-rpc-setup-linux-x86_64.zip` from the [Releases](../../releases) page
+2. Extract the zip and open a terminal in that folder
+3. Run `chmod +x deadlock-rpc && ./deadlock-rpc`
+
+**After first run**
+
+From now on, launch Deadlock through the **Deadlock RPC** shortcut instead of directly. This is what activates Rich Presence. Keep the extracted folder in place, the app writes its logs there.
+
+If you prefer to launch Deadlock your own way, add `-condebug` to Deadlock's launch options in Steam (right-click Deadlock in your library, Properties, Launch Options). This generates the log file the app needs to function.
 
 > [!TIP]
-> Add the Deadlock RPC executable as a non-Steam game in your Steam launcher so you can launch it directly from your library. See [Steam's guide](https://help.steampowered.com/en/faqs/view/4B8B-9697-2338-40EC) for instructions.
-
-### Windows SmartScreen
-
-Windows may show a **"Windows protected your PC"** warning on first run. This is because the executable is unsigned, not because it contains malware. Click **More info → Run anyway** to proceed, or [build from source](#building-from-source) to verify the binary yourself.
+> You can add the Deadlock RPC executable as a non-Steam game so you can launch it straight from your Steam library. [Steam's guide](https://help.steampowered.com/en/faqs/view/4B8B-9697-2338-40EC) explains how.
 
 ## How It Works
 
-Deadlock RPC launches the game with the `-condebug` flag, which causes Deadlock to write its console output to a log file. The app monitors this file in real time, parsing log lines to detect hero selection, map loads, game phase transitions, and match mode. Detected state is pushed to Discord via its IPC protocol, updating your Discord status live as you play.
-
-No game memory is read, no files are modified, and no network traffic is intercepted. It is entirely read-only with respect to the game, making it VAC safe by design.
+Deadlock RPC launches the game with a flag that makes Deadlock write its console output to a log file. The app watches that file and parses it for hero selection, game phase, and match mode, then pushes the result to Discord in real time. No memory is read, no files are modified, no traffic is intercepted. VAC safe by design.
 
 ## Configuration
 
-A **`config.toml`** is included in the release zip next to the executable with all options and their defaults. Edit it with any text editor — changes take effect on the next launch. Any key you omit falls back to its default, and any key added in a new release is automatically written to your file with its default value.
+The tray icon's **Settings** menu lets you toggle the most common options without restarting:
+
+| Setting | Tray label |
+|---------|------------|
+| `general.launch_game_on_start` | Launch Game on Start |
+| `general.exit_when_game_closes` | Exit When Game Closes |
+| `presence.show_hero_image` | Show Hero Image |
+| `presence.show_statlocker_button` | Show Statlocker Button |
+| `presence.hero_portrait_style` | Hero Portrait Style (Normal / Gloat / Critical) |
+
+Changes made through the tray are written to `config.toml` immediately and take effect without a restart. Select **Open Config File** in the Settings menu to open the file directly in your default editor for full customization.
+
+A **`config.toml`** is included in the release zip next to the executable with all options and their defaults. Any key you omit falls back to its default, and any key added in a new release is automatically written to your file. Changes to options not available in the tray take effect on the next launch.
 
 > [!NOTE]
 > If your config file is corrupt or causes issues, delete it and launch the application again to regenerate it with all defaults.
 
 When a release renames or restructures config keys, the release includes a migration that automatically updates your config on the next launch, no manual re-apply needed.
+
+<details>
+<summary>All config options</summary>
 
 ### General
 
@@ -153,6 +167,8 @@ in_matchmaking = "Waiting for a game..."
 [general]
 exit_when_game_closes = false
 ```
+
+</details>
 
 ## Building from Source
 
