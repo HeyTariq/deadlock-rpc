@@ -52,7 +52,7 @@
 4. A **Deadlock RPC** shortcut is created in the folder. Move it to your desktop for easy access
 
 > [!WARNING]
-> Windows may show a **"Windows protected your PC"** warning. This happens because the app is not signed, not because it is harmful. Click **More info**, then **Run anyway**.
+> Windows may show a **"Windows protected your PC"** warning. This happens because the app is not signed, not because it is harmful. Click **More info**, then **Run anyway**. If you'd rather verify the code yourself, [build from source](#building-from-source).
 
 **Linux**
 
