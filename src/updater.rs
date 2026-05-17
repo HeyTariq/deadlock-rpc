@@ -127,7 +127,19 @@ pub fn check_on_startup() {
     }
 }
 
-fn try_check() -> Result<(), Box<dyn std::error::Error>> {
+// Called from the tray menu. Same flow as check_on_startup but notifies the
+// user when already on the latest version (otherwise there is no feedback).
+pub fn check_from_tray() {
+    match try_check() {
+        Ok(false) => crate::notify::alert("Already on the latest version."),
+        Ok(true) => {}
+        Err(e) => warn!("[updater] Check failed: {e}"),
+    }
+}
+
+// Returns Ok(true) if a newer release was found (user prompted, may have
+// applied), Ok(false) if already on the latest version.
+fn try_check() -> Result<bool, Box<dyn std::error::Error>> {
     info!("[updater] Checking for updates (current: v{CURRENT_VERSION})");
 
     let client = ureq::AgentBuilder::new()
@@ -140,20 +152,20 @@ fn try_check() -> Result<(), Box<dyn std::error::Error>> {
 
     if !is_newer(&release.tag_name) {
         info!("[updater] Already on latest version");
-        return Ok(());
+        return Ok(false);
     }
 
     // Ask the user before downloading anything.
     #[cfg(unix)]
     if !prompt_update_linux(release.tag_name.trim_start_matches('v')) {
         info!("[updater] User skipped update");
-        return Ok(());
+        return Ok(true);
     }
 
     #[cfg(windows)]
     if !prompt_update_windows(release.tag_name.trim_start_matches('v')) {
         info!("[updater] User skipped update");
-        return Ok(());
+        return Ok(true);
     }
 
     let asset = release
@@ -184,7 +196,7 @@ fn try_check() -> Result<(), Box<dyn std::error::Error>> {
     // Write and rename complete before apply_update returns — only then do we
     // notify the user and exec/restart, so this fires only on full success.
     apply_update(&exe_path, &new_binary)?;
-    Ok(())
+    Ok(true)
 }
 
 const CHANGELOG_URL: &str = "https://github.com/tariq-swe/deadlock-rpc/releases/latest";
