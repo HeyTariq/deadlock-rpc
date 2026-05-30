@@ -523,7 +523,7 @@ dependencies = [
 
 [[package]]
 name = "deadlock-rpc"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "dirs",
  "discord-rich-presence",
