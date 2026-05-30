@@ -77,7 +77,9 @@ impl HeroCache {
 fn fetch_hero_index(client: &ureq::Agent) -> HashMap<String, String> {
     const URL: &str = "https://api.deadlock-api.com/v1/assets/heroes?only_active=true";
     debug!("[api] Loading hero index from {URL}");
-    match client.get(URL).call().and_then(|r| r.into_json::<Vec<HeroIndexEntry>>().map_err(|e| e.into())) {
+    let result: Result<Vec<HeroIndexEntry>, Box<dyn std::error::Error>> =
+        (|| Ok(client.get(URL).call()?.into_json()?))();
+    match result {
         Ok(entries) => {
             let count = entries.len();
             let map = entries.into_iter().map(|e| (e.class_name, e.name)).collect();
