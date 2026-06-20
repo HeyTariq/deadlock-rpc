@@ -193,6 +193,16 @@ mod linux {
                             ..Default::default()
                         }
                         .into(),
+                        StandardItem {
+                            label: "Open Log File".to_string(),
+                            activate: Box::new(|_| {
+                                if let Some(path) = crate::logger::log_path() {
+                                    let _ = std::process::Command::new("xdg-open").arg(path).spawn();
+                                }
+                            }),
+                            ..Default::default()
+                        }
+                        .into(),
                     ],
                     ..Default::default()
                 }
@@ -347,6 +357,7 @@ mod windows {
             .unwrap();
 
         let open_config_item = MenuItem::new("Open Config File", true, None);
+        let open_log_item = MenuItem::new("Open Log File", true, None);
         let check_updates_item = MenuItem::new("Check for Updates", true, None);
         let latest_changes_item = MenuItem::new("Latest Changes", true, None);
         let source_code_item = MenuItem::new("Source Code", true, None);
@@ -363,6 +374,7 @@ mod windows {
                 &portrait_menu,
                 &PredefinedMenuItem::separator(),
                 &open_config_item,
+                &open_log_item,
             ])
             .unwrap();
 
@@ -374,6 +386,7 @@ mod windows {
         let portrait_gloat_id = portrait_gloat_item.id().clone();
         let portrait_critical_id = portrait_critical_item.id().clone();
         let open_config_id = open_config_item.id().clone();
+        let open_log_id = open_log_item.id().clone();
         let check_updates_id = check_updates_item.id().clone();
         let latest_changes_id = latest_changes_item.id().clone();
         let source_code_id = source_code_item.id().clone();
@@ -413,6 +426,14 @@ mod windows {
                             let _ = std::process::Command::new("cmd")
                                 .args(["/c", "start", "", p])
                                 .spawn();
+                        }
+                    } else if event.id == open_log_id {
+                        if let Some(path) = crate::logger::log_path() {
+                            if let Some(p) = path.to_str() {
+                                let _ = std::process::Command::new("cmd")
+                                    .args(["/c", "start", "", p])
+                                    .spawn();
+                            }
                         }
                     } else if event.id == check_updates_id {
                         std::thread::spawn(crate::updater::check_from_tray);

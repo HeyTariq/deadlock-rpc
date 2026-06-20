@@ -1,5 +1,5 @@
 #[cfg(windows)]
-pub fn alert(body: &str) {
+fn messagebox(body: &str, icon: u32) {
     use std::ffi::OsStr;
     use std::os::windows::ffi::OsStrExt;
 
@@ -18,12 +18,20 @@ pub fn alert(body: &str) {
                 std::ptr::null_mut(),
                 text.as_ptr(),
                 title.as_ptr(),
-                winapi::um::winuser::MB_OK
-                    | winapi::um::winuser::MB_ICONINFORMATION
-                    | winapi::um::winuser::MB_TOPMOST,
+                winapi::um::winuser::MB_OK | icon | winapi::um::winuser::MB_TOPMOST,
             );
         }
     });
+}
+
+#[cfg(windows)]
+pub fn alert(body: &str) {
+    messagebox(body, winapi::um::winuser::MB_ICONINFORMATION);
+}
+
+#[cfg(windows)]
+pub fn warn_alert(body: &str) {
+    messagebox(body, winapi::um::winuser::MB_ICONWARNING);
 }
 
 #[cfg(not(windows))]
@@ -32,5 +40,15 @@ pub fn alert(body: &str) {
         .appname("Deadlock RPC")
         .summary("Deadlock RPC")
         .body(body)
+        .show();
+}
+
+#[cfg(not(windows))]
+pub fn warn_alert(body: &str) {
+    let _ = notify_rust::Notification::new()
+        .appname("Deadlock RPC")
+        .summary("Deadlock RPC")
+        .body(body)
+        .urgency(notify_rust::Urgency::Critical)
         .show();
 }

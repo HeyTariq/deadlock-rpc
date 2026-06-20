@@ -25,7 +25,18 @@ pub fn find_console_log(game_folder_override: Option<&str>) -> PathBuf {
     }
 
     match try_find_console_log() {
-        Some(path) => path,
+        Some(path) => {
+            // Strip the console.log suffix to get the Deadlock root folder.
+            let game_root = path
+                .ancestors()
+                .nth(3) // strip game/citadel/console.log
+                .map(|p| p.to_string_lossy().into_owned());
+            if let Some(root) = game_root {
+                log::info!("[steam] Auto-detected game folder saved to config: {root}");
+                crate::config::set_config_string("general", "game_folder", &root);
+            }
+            path
+        }
         None => {
             let fallback = default_fallback().join(CONSOLE_LOG_SUFFIX);
             log::warn!(
@@ -33,7 +44,7 @@ pub fn find_console_log(game_folder_override: Option<&str>) -> PathBuf {
                 If Deadlock is installed in a custom Steam library, set game_folder in config.toml.",
                 fallback.display()
             );
-            crate::notify::alert(
+            crate::notify::warn_alert(
                 "Deadlock could not be found in your Steam library.\n\
                 Rich presence may not update. Set game_folder in config.toml \
                 to your Deadlock install folder.",

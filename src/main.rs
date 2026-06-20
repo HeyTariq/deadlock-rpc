@@ -29,6 +29,7 @@ type LastRpcState = (GamePhase, MatchMode, Option<String>, u8, Option<String>, O
 fn connect_discord(app_id: &str) -> DiscordIpcClient {
     let mut client = DiscordIpcClient::new(app_id);
     let mut notified = false;
+    let mut fail_count = 0u32;
     loop {
         match client.connect() {
             Ok(_) => {
@@ -36,8 +37,9 @@ fn connect_discord(app_id: &str) -> DiscordIpcClient {
                 return client;
             }
             Err(e) => {
+                fail_count += 1;
                 warn!("[discord] Connect failed: {e}. Make sure Discord is open. Retrying in 10s...");
-                if !notified {
+                if !notified && fail_count >= 3 {
                     notify::alert(
                         "Discord is not running.\n\
                         Open Discord, and Deadlock RPC will connect automatically.",
@@ -221,15 +223,15 @@ std::process::exit(0);
         };
 
         info!(
-            "[rpc] {{\n  \"phase\": \"{:?}\",\n  \"hero\": \"{}\",\n  \"details\": \"{}\",\n  \"state\": \"{}\",\n  \"party_size\": {},\n  \"account_id\": {},\n  \"statlocker_button\": \"{}\"\n}}",
+            "[rpc] phase={:?} hero={} details=\"{}\" state=\"{}\" party={} account={} statlocker={}",
             phase,
             hero_key.as_deref().unwrap_or("none"),
             details,
             state_opt.unwrap_or("none"),
             party_size,
-            account_id.map_or("null".to_string(), |id| id.to_string()),
+            account_id.map_or("none".to_string(), |id| id.to_string()),
             if shared.show_statlocker_button.load(Ordering::Relaxed) {
-                if account_id.is_some() { "enabled" } else { "enabled (awaiting Steam ID)" }
+                if account_id.is_some() { "enabled" } else { "awaiting-id" }
             } else {
                 "disabled"
             }

@@ -10,7 +10,7 @@ pub fn launch_deadlock() {
         Ok(_) => info!("[launcher] Steam launch initiated."),
         Err(e) => {
             warn!("[launcher] Failed to launch Deadlock: {e}");
-            crate::notify::alert(
+            crate::notify::warn_alert(
                 "Failed to launch Deadlock.\n\
                 Make sure Steam is installed and running, then launch the game manually.",
             );

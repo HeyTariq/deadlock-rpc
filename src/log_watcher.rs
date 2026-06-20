@@ -94,16 +94,21 @@ impl LogWatcher {
         let mut initialized = false;
         let mut last_activity = std::time::Instant::now();
         let mut logged_waiting = false;
+        let mut session_start: Option<std::time::Instant> = None;
 
         loop {
             if !self.log_path.exists() {
                 if initialized {
-                    info!("[watcher] Log file gone — game closed, resetting state");
+                    let duration = session_start.map(|s| s.elapsed()).unwrap_or_default();
+                    let mins = duration.as_secs() / 60;
+                    let secs = duration.as_secs() % 60;
+                    info!("[watcher] Game session ended after {}m {}s — resetting state", mins, secs);
                     let mut gs = state.lock().unwrap();
                     gs.reset();
                     initialized = false;
                     last_pos = 0;
                     logged_waiting = false;
+                    session_start = None;
                 } else if !logged_waiting {
                     info!("[watcher] Waiting for Deadlock log at: {}", self.log_path.display());
                     logged_waiting = true;
@@ -117,6 +122,8 @@ impl LogWatcher {
                 .unwrap_or(0);
 
             if !initialized {
+                info!("[watcher] Found console.log — reading game state");
+                session_start = Some(std::time::Instant::now());
                 let start = file_size.saturating_sub(RESYNC_BYTES);
                 let lines = read_lines_from(&self.log_path, start, start > 0);
                 log_last_instances(&lines, &patterns);
@@ -191,6 +198,7 @@ impl LogWatcher {
                     initialized = false;
                     last_pos = 0;
                     last_activity = std::time::Instant::now();
+                    session_start = None;
                 }
             }
 

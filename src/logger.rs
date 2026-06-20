@@ -1,10 +1,18 @@
 use simplelog::*;
 use std::path::PathBuf;
+use std::sync::OnceLock;
+
+static LOG_PATH: OnceLock<PathBuf> = OnceLock::new();
+
+pub fn log_path() -> Option<&'static PathBuf> {
+    LOG_PATH.get()
+}
 
 pub fn init() {
     let log_dir = log_dir();
     std::fs::create_dir_all(&log_dir).ok();
     let path = log_dir.join("deadlock-rpc.log");
+    LOG_PATH.set(path.clone()).ok();
 
     let level = if cfg!(debug_assertions) {
         LevelFilter::Debug
