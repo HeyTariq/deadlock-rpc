@@ -178,17 +178,6 @@ exit_when_game_closes = false
 | `--no-shortcut` | Skip the shortcut install prompt. Useful for automated or CI setups. |
 | `--generate-config` | Write a fresh `config.toml` with all defaults to the current directory, then exit. |
 
-**Steam launch option for `--no-shortcut`** (Linux only)
-
-If you launch Deadlock RPC via a Steam launch option, pass `--no-shortcut` to suppress the prompt:
-
-```
-/path/to/deadlock-rpc --no-shortcut &
-```
-
-> [!NOTE]
-> The `&` background operator works in bash/sh but not in Windows `cmd.exe`. On Windows, use the `--no-shortcut` flag by running the executable directly from a terminal or shortcut target instead.
-
 ## Building from Source
 
 Requires [Rust](https://rustup.rs) stable.
