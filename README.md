@@ -23,6 +23,7 @@
   - [Installation](#installation)
   - [How It Works](#how-it-works)
   - [Configuration](#configuration)
+  - [CLI Flags](#cli-flags)
   - [Building from Source](#building-from-source)
   - [Disclaimer](#disclaimer)
 
@@ -168,6 +169,14 @@ exit_when_game_closes = false
 ```
 
 </details>
+
+## CLI Flags
+
+| Flag | Description |
+|------|-------------|
+| `--no-launch` | Skip launching Deadlock on startup, even if `launch_game_on_start` is enabled in config. |
+| `--no-shortcut` | Skip the shortcut install prompt. Useful for automated or CI setups. |
+| `--generate-config` | Write a fresh `config.toml` with all defaults to the current directory, then exit. |
 
 ## Building from Source
 

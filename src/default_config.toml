@@ -6,6 +6,8 @@ discord_update_interval_s = 5
 # Override the Deadlock install location if auto-detection fails.
 # Example: steamapps\common\Deadlock
 game_folder = ""
+# Set to true after the user declines the shortcut install prompt. Managed automatically.
+declined_shortcut = false
 # Managed automatically — do not edit.
 config_version = 2
 
