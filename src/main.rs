@@ -294,6 +294,8 @@ fn main() {
     let no_launch_flag = args.iter().any(|a| a == "--no-launch");
     // --no-launch CLI flag always overrides auto_launch, even if config enables it.
     let no_launch = no_launch_flag || !cfg.general.launch_game_on_start;
+    #[cfg(not(debug_assertions))]
+    let no_shortcut = args.iter().any(|a| a == "--no-shortcut");
 
     if instance_lock.is_none() {
         if !no_launch_flag {
@@ -308,7 +310,9 @@ fn main() {
 
     // Only install the shortcut in release builds so dev runs don't overwrite it with a debug path.
     #[cfg(not(debug_assertions))]
-    launcher::install_shortcut();
+    if !no_shortcut {
+        launcher::install_shortcut();
+    }
 
     if !no_launch {
         launcher::launch_deadlock();
