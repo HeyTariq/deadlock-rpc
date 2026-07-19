@@ -19,6 +19,7 @@ pub struct GeneralConfig {
     pub discord_update_interval_s: u64,
     // Overrides auto-detection when set to a non-empty path.
     pub game_folder: Option<String>,
+    pub declined_shortcut: bool,
 }
 
 /// Which hero portrait art style to show in Discord.
@@ -95,6 +96,7 @@ impl Default for GeneralConfig {
             game_log_poll_interval_ms: 500,
             discord_update_interval_s: 5,
             game_folder: None,
+            declined_shortcut: false,
         }
     }
 }

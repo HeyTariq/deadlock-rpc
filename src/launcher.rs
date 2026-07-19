@@ -44,7 +44,12 @@ fn launch_via_steam() -> std::io::Result<()> {
 }
 
 #[cfg(not(debug_assertions))]
-pub fn install_shortcut() {
+pub fn install_shortcut(cfg: &crate::config::Config) {
+    if cfg.general.declined_shortcut {
+        info!("[install] User previously declined shortcut, skipping");
+        return;
+    }
+
     let exe = match std::env::current_exe() {
         Ok(p) => p,
         Err(e) => {
@@ -68,6 +73,7 @@ pub fn install_shortcut() {
 
     if !prompt_shortcut(&dest) {
         info!("[install] User declined shortcut creation");
+        crate::config::set_config_bool("general", "declined_shortcut", true);
         return;
     }
 
