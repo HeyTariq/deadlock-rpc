@@ -85,7 +85,7 @@
   <main>
     <div class="container">
       <section class="hero">
-        <span class="version-badge">v1.0.1, Windows &amp; Linux</span>
+        <span class="version-badge" id="version-badge" data-suffix="Windows &amp; Linux">Windows &amp; Linux</span>
         <img src="assets/icon.png" alt="Deadlock Rich Presence logo" class="hero-icon" width="88" height="88">
         <h1>Deadlock Rich Presence<br>for Discord</h1>
         <p class="hero-tagline">
@@ -108,8 +108,8 @@
           </a>
 
           <div class="dl-alts">
-            <span class="dl-alt-linux">Also for <a href="https://github.com/HeyTariq/deadlock-rpc/releases/latest/download/deadlock-rpc-setup-linux-x86_64.zip" class="link-subtle">Linux</a></span>
-            <span class="dl-alt-win">Also for <a href="https://github.com/HeyTariq/deadlock-rpc/releases/latest/download/deadlock-rpc-setup-windows-x86_64.zip" class="link-subtle">Windows</a></span>
+            <a href="https://github.com/HeyTariq/deadlock-rpc/releases/latest/download/deadlock-rpc-setup-linux-x86_64.zip" class="link-subtle dl-alt-linux">Also for Linux</a>
+            <a href="https://github.com/HeyTariq/deadlock-rpc/releases/latest/download/deadlock-rpc-setup-windows-x86_64.zip" class="link-subtle dl-alt-win">Also for Windows</a>
             <span class="dl-dot" aria-hidden="true">·</span>
             <a href="setup-guide/" class="link-subtle">Setup Guide</a>
             <span class="dl-dot" aria-hidden="true">·</span>
@@ -134,43 +134,43 @@
     <div class="container">
       <section>
         <h2>Why choose Deadlock RPC</h2>
-        <p class="section-sub">Built for performance and flexibility, not just for show</p>
+        <p class="section-sub">Show off what you're playing, without the hassle</p>
         <div class="features-grid">
 
           <div class="feature-card">
             <i class="bi bi-shield-check feature-icon" aria-hidden="true"></i>
-            <h3>Read-only, VAC safe</h3>
-            <p>Read-only with respect to the game. No game memory access, no injected code, no modifications to game files. Safe by design and fully auditable.</p>
+            <h3>Completely safe to use</h3>
+            <p>It just watches your game log to see what's happening, nothing else. It never touches your game files, so there's no risk to your account.</p>
           </div>
 
           <div class="feature-card">
             <i class="bi bi-image feature-icon" aria-hidden="true"></i>
-            <h3>Three hero portrait styles</h3>
-            <p>Choose between normal, gloat (celebration crop), or critical (combat crop) art styles for your Discord Deadlock presence card.</p>
+            <h3>Show off your hero in style</h3>
+            <p>Pick how your hero portrait looks on Discord: a normal shot, a celebration pose, or an in-combat action shot.</p>
           </div>
 
           <div class="feature-card">
             <i class="bi bi-arrow-repeat feature-icon" aria-hidden="true"></i>
-            <h3>Auto-launch and auto-exit</h3>
-            <p>Run Deadlock RPC once. It launches Deadlock for you and shuts itself down automatically when you close the game.</p>
+            <h3>Set it and forget it</h3>
+            <p>Open Deadlock RPC and it starts the game for you. Close Deadlock and it quietly closes itself, too. No babysitting required.</p>
           </div>
 
           <div class="feature-card">
             <i class="bi bi-bar-chart-line feature-icon" aria-hidden="true"></i>
-            <h3>Statlocker.gg integration</h3>
-            <p>Add a clickable button to your presence so others can view your Deadlock match history on Statlocker.gg directly from Discord.</p>
+            <h3>Share your stats</h3>
+            <p>Add a button to your Discord status so friends can jump straight to your Statlocker.gg match history in one click.</p>
           </div>
 
           <div class="feature-card">
             <i class="bi bi-sliders feature-icon" aria-hidden="true"></i>
-            <h3>Deeply customizable</h3>
-            <p>Control every line of presence text, toggle the timer, and configure every option through <code>config.toml</code>. No reinstall needed.</p>
+            <h3>Make it your own</h3>
+            <p>Not a fan of the default look? Change what your Discord status says, show or hide the match timer, and tweak it however you like.</p>
           </div>
 
           <div class="feature-card">
-            <i class="bi bi-terminal feature-icon" aria-hidden="true"></i>
-            <h3>Native Rust binary</h3>
-            <p>No Python interpreter, no Node.js runtime, no antivirus false positives. A single self-contained executable that starts instantly.</p>
+            <i class="bi bi-lightning-charge feature-icon" aria-hidden="true"></i>
+            <h3>Fast and lightweight</h3>
+            <p>Nothing to install or update separately. It's a single small app that opens instantly and stays out of your way.</p>
           </div>
 
         </div>
@@ -274,5 +274,6 @@
     });
   }());
   </script>
+  <script src="assets/version.js"></script>
 </body>
 </html>
