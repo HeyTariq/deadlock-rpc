@@ -4,7 +4,12 @@ on:
   schedule:
     # Every Tuesday at 13:00 UTC. Adjust as needed.
     - cron: "0 13 * * 2"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Release even if only docs/CI files changed"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -35,9 +40,42 @@ jobs:
           count=$(git rev-list "${latest_tag}..HEAD" --count)
           echo "Commits since $latest_tag: $count"
           if [ "$count" -eq 0 ]; then
+            echo "No commits since $latest_tag; nothing to release."
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
-          else
+            exit 0
+          fi
+
+          # Only ship a release when something users actually run has changed.
+          # Docs, licence text, CI config and editor/agent files are excluded:
+          # a release for those would prompt every user to download a binary
+          # that is byte-for-byte the same behaviour as the one they have.
+          #
+          # KEEP THIS LIST CURRENT: any new file that does not ship to users
+          # belongs here. See "Adding Non-Shipping Files" in CLAUDE.md.
+          # Note that release.yml and assets/ are intentionally NOT excluded.
+          significant=$(git diff --name-only "${latest_tag}..HEAD" -- . \
+            ':(exclude)*.md' \
+            ':(exclude)docs/**' \
+            ':(exclude)LICENSE' \
+            ':(exclude).github/ISSUE_TEMPLATE/**' \
+            ':(exclude).github/workflows/ci.yml' \
+            ':(exclude).github/workflows/weekly-release.yml' \
+            ':(exclude).claude/**' \
+            ':(exclude).gitignore')
+
+          echo "All files changed since $latest_tag:"
+          git diff --name-only "${latest_tag}..HEAD"
+
+          if [ -n "$significant" ]; then
+            echo "Release-worthy changes:"
+            echo "$significant"
             echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          elif [ "${{ inputs.force }}" = "true" ]; then
+            echo "Only docs/CI changes, but force was requested; releasing anyway."
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Only docs/CI changes since $latest_tag; skipping release."
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Compute next version
