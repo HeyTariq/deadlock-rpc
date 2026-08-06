@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Demo: See Deadlock Rich Presence on Discord</title>
+  <meta name="description" content="Try Deadlock Rich Presence in your browser. Change the game state, hero, portrait style and presence text, and watch a live mock of your Discord status update.">
+  <link rel="canonical" href="https://heytariq.github.io/deadlock-rpc/demo/">
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Interactive Demo: See Deadlock Rich Presence on Discord">
+  <meta property="og:description" content="Try Deadlock Rich Presence in your browser. Change the settings and watch your Discord status update live.">
+  <meta property="og:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
+  <meta property="og:url" content="https://heytariq.github.io/deadlock-rpc/demo/">
+  <meta property="og:site_name" content="Deadlock Rich Presence">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Interactive Demo: See Deadlock Rich Presence on Discord">
+  <meta name="twitter:description" content="Try Deadlock Rich Presence in your browser. Change the settings and watch your Discord status update live.">
+  <meta name="twitter:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Interactive Demo: See Deadlock Rich Presence on Discord",
+    "description": "A browser sandbox that simulates the Deadlock RPC Discord rich presence card. Change the game state, hero, portrait style and presence text and see the result live.",
+    "url": "https://heytariq.github.io/deadlock-rpc/demo/",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Deadlock Rich Presence",
+      "url": "https://heytariq.github.io/deadlock-rpc/"
+    },
+    "mainEntity": {
+      "@type": "SoftwareApplication",
+      "name": "Deadlock Rich Presence",
+      "url": "https://heytariq.github.io/deadlock-rpc/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <nav aria-label="Site navigation">
+    <div class="nav-inner">
+      <a href="../" class="nav-brand">
+        <img src="../assets/icon.png" alt="Deadlock RPC" width="28" height="28">
+        Deadlock RPC
+      </a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="../">Home</a></li>
+          <li><a href="./" class="active">Demo</a></li>
+          <li><a href="../download/">Download</a></li>
+          <li><a href="../faq/">FAQ</a></li>
+          <li><a href="../setup-guide/">Setup Guide</a></li>
+        </ul>
+        <a href="https://github.com/HeyTariq/deadlock-rpc" class="nav-github" aria-label="View on GitHub">
+          <i class="bi bi-github" aria-hidden="true"></i>
+          <span class="nav-github-label">GitHub</span>
+        </a>
+        <button class="nav-hamburger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-mobile-menu">
+          <i class="bi bi-list" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+    <div class="nav-mobile-menu" id="nav-mobile-menu">
+      <a href="../">Home</a>
+      <a href="./" class="active">Demo</a>
+      <a href="../download/">Download</a>
+      <a href="../faq/">FAQ</a>
+      <a href="../setup-guide/">Setup Guide</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container">
+      <div class="page-hero">
+        <h1>Try Deadlock Rich Presence in your browser</h1>
+        <p>Change the settings and watch your Discord status update. Nothing to install, nothing to sign in to.</p>
+      </div>
+
+      <section class="demo-sandbox">
+        <div class="sandbox-grid">
+
+          <div class="sandbox-controls">
+
+            <div class="ctrl-row">
+              <span class="ctrl-label" id="lbl-phase">Game state</span>
+              <div class="seg" id="d-phase" role="radiogroup" aria-labelledby="lbl-phase"></div>
+            </div>
+
+            <div class="ctrl-row">
+              <label class="ctrl-label" for="d-hero">Hero</label>
+              <select id="d-hero"></select>
+            </div>
+
+            <div class="ctrl-row">
+              <span class="ctrl-label" id="lbl-style">Portrait style</span>
+              <div class="seg" id="d-style" role="radiogroup" aria-labelledby="lbl-style"></div>
+            </div>
+
+            <div class="ctrl-row">
+              <label class="ctrl-label" for="d-mode">Match mode</label>
+              <select id="d-mode"></select>
+            </div>
+
+            <div class="ctrl-row">
+              <label class="ctrl-label" for="d-party">Party size</label>
+              <div class="range-wrap">
+                <input type="range" id="d-party" min="1" max="6" step="1" value="1">
+                <span class="ctrl-val" id="d-party-val">1 of 6</span>
+              </div>
+            </div>
+
+            <div class="ctrl-row">
+              <span class="ctrl-label">Options</span>
+              <div class="toggles">
+                <label class="chk"><input type="checkbox" id="d-heroimg"> Show hero portrait</label>
+                <label class="chk"><input type="checkbox" id="d-statlocker"> Statlocker button</label>
+              </div>
+            </div>
+
+            <div class="ctrl-actions">
+              <button type="button" class="btn btn-primary" id="d-sim">Simulate a match</button>
+              <button type="button" class="btn btn-secondary" id="d-reset">Reset</button>
+            </div>
+
+            <p class="ctrl-hint" id="d-hint" role="status" aria-live="polite"></p>
+          </div>
+
+          <div class="sandbox-preview">
+            <div class="rpc-card">
+              <div class="rpc-header">Playing</div>
+              <div class="rpc-body">
+                <div class="rpc-art">
+                  <img id="rpc-large" class="rpc-large" src="../assets/icon.png" alt="Deadlock" width="60" height="60">
+                  <img id="rpc-small" class="rpc-small" src="../assets/icon.png" alt="Deadlock RPC" width="20" height="20">
+                </div>
+                <div class="rpc-lines">
+                  <div class="rpc-name">Deadlock</div>
+                  <div class="rpc-details" id="rpc-details"></div>
+                  <div class="rpc-state" id="rpc-state"></div>
+                  <div class="rpc-time" id="rpc-time">0:00 elapsed</div>
+                </div>
+              </div>
+              <button type="button" class="rpc-button" id="rpc-button" hidden>View on Statlocker</button>
+            </div>
+            <p class="rpc-caption">
+              A mock of the Discord profile card, not a live connection. The
+              <strong>Deadlock</strong> line is the name of the Discord application
+              and isn’t configurable.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <section>
+        <details class="demo-details">
+          <summary>Customize the text</summary>
+          <p class="details-intro">
+            Every line below maps to a key in <code>config.toml</code>. Tokens like
+            <code>{hero}</code> are replaced at runtime; click one to insert it.
+          </p>
+          <div id="d-text-fields"></div>
+        </details>
+
+        <details class="demo-details">
+          <summary>Your config.toml</summary>
+          <p class="details-intro">
+            Paste this into <code>config.toml</code> next to the executable. Only the
+            settings this demo covers are shown, see the
+            <a href="../setup-guide/#configuration">Setup Guide</a> for the rest.
+          </p>
+          <div class="toml-wrap">
+            <button type="button" class="btn btn-secondary btn-copy" id="d-copy">Copy</button>
+            <pre><code id="d-toml"></code></pre>
+          </div>
+        </details>
+      </section>
+
+      <section class="cta-section">
+        <h2>Like what you see?</h2>
+        <p>Free, open source, and it runs on Windows and Linux.</p>
+        <div class="btn-group">
+          <a href="../download/" class="btn btn-primary">Download Deadlock RPC</a>
+          <a href="../setup-guide/" class="btn btn-secondary">Setup Guide</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>Deadlock RPC, open source, <a href="https://github.com/HeyTariq/deadlock-rpc/blob/main/LICENSE">GPL-3.0 License</a></span>
+      <span>
+        <a href="https://github.com/HeyTariq/deadlock-rpc">GitHub</a>
+        ·
+        <a href="https://github.com/HeyTariq/deadlock-rpc/releases">Releases</a>
+        ·
+        <a href="./">Demo</a>
+        ·
+        <a href="../faq/">FAQ</a>
+        ·
+        <a href="../setup-guide/">Setup Guide</a>
+      </span>
+    </div>
+    <div class="footer-inner footer-disclaimer">
+      Not affiliated with Valve Corporation. Deadlock and all hero assets are property of Valve Corporation.
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    var btn = document.querySelector('.nav-hamburger');
+    var menu = document.getElementById('nav-mobile-menu');
+    if (!btn || !menu) return;
+    btn.addEventListener('click', function () {
+      var open = menu.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) {
+      if (!menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }());
+  </script>
+  <script src="../assets/demo.js"></script>
+</body>
+</html>
