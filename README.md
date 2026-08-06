@@ -83,9 +83,7 @@ The tray icon's **Settings** menu lets you toggle the most common options withou
 | `presence.show_statlocker_button` | Show Statlocker Button |
 | `presence.hero_portrait_style` | Hero Portrait Style (Normal / Gloat / Critical) |
 
-Changes made through the tray are written to `config.toml` immediately and take effect without a restart. Select **Open Config File** in the Settings menu to open the file directly in your default editor for full customization.
-
-A **`config.toml`** is included in the release zip next to the executable with all options and their defaults. Any key you omit falls back to its default, and any key added in a new release is automatically written to your file. Changes to options not available in the tray take effect on the next launch.
+Changes made through the tray are written to `config.toml` immediately and take effect without a restart. Select **Open Config File** in the tray menu to open the file directly in your default editor for full customization.
 
 > [!NOTE]
 > If your config file is corrupt or causes issues, delete it and launch the application again to regenerate it with all defaults.
