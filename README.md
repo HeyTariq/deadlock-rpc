@@ -5,11 +5,9 @@
 
   Show your Deadlock hero, match mode, and game phase on your Discord profile automatically. Free, open-source, native Rust binary for Windows and Linux.
 
-  [![CI](https://github.com/HeyTariq/deadlock-rpc/actions/workflows/ci.yml/badge.svg)](https://github.com/HeyTariq/deadlock-rpc/actions/workflows/ci.yml)
   [![Latest Release](https://img.shields.io/github/v/release/HeyTariq/deadlock-rpc?&label=release)](https://github.com/HeyTariq/deadlock-rpc/releases/latest)
   [![Downloads](https://img.shields.io/github/downloads/HeyTariq/deadlock-rpc/total?)](https://github.com/HeyTariq/deadlock-rpc/releases)
   [![Last Commit](https://img.shields.io/github/last-commit/HeyTariq/deadlock-rpc)](https://github.com/HeyTariq/deadlock-rpc/commits/main)
-  [![Built with Rust](https://img.shields.io/badge/built%20with-Rust-orange?&logo=rust)](https://www.rust-lang.org)
   [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-blue?)](https://github.com/HeyTariq/deadlock-rpc/releases/latest)
 
 </div>
@@ -85,9 +83,7 @@ The tray icon's **Settings** menu lets you toggle the most common options withou
 | `presence.show_statlocker_button` | Show Statlocker Button |
 | `presence.hero_portrait_style` | Hero Portrait Style (Normal / Gloat / Critical) |
 
-Changes made through the tray are written to `config.toml` immediately and take effect without a restart. Select **Open Config File** in the Settings menu to open the file directly in your default editor for full customization.
-
-A **`config.toml`** is included in the release zip next to the executable with all options and their defaults. Any key you omit falls back to its default, and any key added in a new release is automatically written to your file. Changes to options not available in the tray take effect on the next launch.
+Changes made through the tray are written to `config.toml` immediately and take effect without a restart. Select **Open Config File** in the tray menu to open the file directly in your default editor for full customization.
 
 > [!NOTE]
 > If your config file is corrupt or causes issues, delete it and launch the application again to regenerate it with all defaults.
