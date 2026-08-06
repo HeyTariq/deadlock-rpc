@@ -3,7 +3,7 @@ use std::io::{Cursor, Read};
 
 const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION");
 const RELEASES_API: &str =
-    "https://api.github.com/repos/tariq-swe/deadlock-rpc/releases/latest";
+    "https://api.github.com/repos/HeyTariq/deadlock-rpc/releases/latest";
 
 #[derive(serde::Deserialize)]
 struct Release {
@@ -199,7 +199,7 @@ fn try_check() -> Result<bool, Box<dyn std::error::Error>> {
     Ok(true)
 }
 
-const CHANGELOG_URL: &str = "https://github.com/tariq-swe/deadlock-rpc/releases/latest";
+const CHANGELOG_URL: &str = "https://github.com/HeyTariq/deadlock-rpc/releases/latest";
 
 // Blocking Yes/No dialog on Linux — tries zenity (GTK/GNOME) then kdialog (KDE).
 // Loops if the user clicks "View Changelog" (opens browser, then re-shows the prompt).
