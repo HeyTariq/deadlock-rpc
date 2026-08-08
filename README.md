@@ -30,10 +30,7 @@
 <div align="center">
   <img src="assets/demo.gif" alt="Deadlock Discord Rich Presence showing hero portrait, match mode, and game phase updating live on a Discord profile card" />
 
-  **[Try the interactive demo →](https://heytariq.github.io/deadlock-rpc/demo/)**
-
-  Switch heroes, game phases, and portrait styles in your browser and watch the
-  Discord card update live. Nothing to install.
+  **[Try the interactive demo](https://heytariq.github.io/deadlock-rpc/demo/)**
 
 </div>
 
