@@ -65,13 +65,26 @@ impl GamePhase {
     }
 }
 
+// Renders a match duration for the presence line. Minute granularity on purpose: the presence
+// is only pushed every few seconds, so a seconds counter would read as stale between updates.
+pub fn format_match_elapsed(d: std::time::Duration) -> String {
+    let total_mins = d.as_secs() / 60;
+    if total_mins < 60 {
+        format!("{}m", total_mins)
+    } else {
+        format!("{}h {:02}m", total_mins / 60, total_mins % 60)
+    }
+}
+
 pub struct GameState {
     pub phase: GamePhase,
     pub match_mode: MatchMode,
     pub hero_key: Option<String>,
     pub map_name: Option<String>,
     pub party_size: u8,
-    
+    // Set when the match actually starts, cleared whenever we leave the InMatch phase.
+    pub match_started_at: Option<std::time::Instant>,
+
     // internal tracking
     pub(crate) hero_window_open: bool,
     pub(crate) hideout_loaded: bool,
@@ -89,6 +102,7 @@ impl GameState {
             hero_key: None,
             map_name: None,
             party_size: 1,
+            match_started_at: None,
             hero_window_open: true,
             hideout_loaded: false,
             local_account_id: None,
@@ -104,6 +118,7 @@ impl GameState {
 
     pub fn enter_hideout(&mut self) {
         self.phase = GamePhase::Hideout;
+        self.match_started_at = None;
         self.hero_key = None;
         self.hero_window_open = true;
         self.hideout_loaded = false;
@@ -145,10 +160,12 @@ impl GameState {
 
     pub fn enter_main_menu(&mut self) {
         self.phase = GamePhase::MainMenu;
+        self.match_started_at = None;
     }
 
     pub fn enter_queue(&mut self) {
         self.phase = GamePhase::InQueue;
+        self.match_started_at = None;
     }
 
     pub fn leave_queue(&mut self) {
@@ -157,6 +174,7 @@ impl GameState {
 
     pub fn enter_match_intro(&mut self) {
         self.phase = GamePhase::MatchIntro;
+        self.match_started_at = None;
         self.match_mode = MatchMode::Unknown;
         self.hero_key = None;
         self.hero_window_open = true;
@@ -164,15 +182,29 @@ impl GameState {
     }
 
     pub fn start_match(&mut self) {
+        // Guard against repeated "game in progress" signals restarting the clock.
+        if self.phase != GamePhase::InMatch || self.match_started_at.is_none() {
+            self.match_started_at = Some(std::time::Instant::now());
+        }
         self.phase = GamePhase::InMatch;
     }
 
     pub fn end_match(&mut self) {
         self.phase = GamePhase::PostMatch;
+        self.match_started_at = None;
     }
 
     pub fn enter_spectating(&mut self) {
         self.phase = GamePhase::Spectating;
+        self.match_started_at = None;
+    }
+
+    // How long the current match has been running, or None outside of an active match.
+    pub fn match_elapsed(&self) -> Option<std::time::Duration> {
+        if self.phase != GamePhase::InMatch {
+            return None;
+        }
+        self.match_started_at.map(|t| t.elapsed())
     }
 
     pub fn prepare_match_hero_tracking(&mut self) {
@@ -185,10 +217,12 @@ impl GameState {
     // - `hideout_text`: hero-specific text from the API (takes priority in Hideout phase).
     // - `hero_name`: display name of the current hero (used as `{hero}` variable).
     // - `cfg`: per-phase string templates from the loaded config.
+    // - `timer`: formatted match duration (used as `{timer}`, appended if the template omits it).
     pub fn presence_status(
         &self,
         hideout_text: Option<&str>,
         hero_name: Option<&str>,
+        timer: Option<&str>,
         cfg: &crate::config::StatusStrings,
     ) -> String {
         use crate::config::apply_vars;
@@ -208,14 +242,25 @@ impl GameState {
             }
             GamePhase::InMatch => {
                 let mode = self.match_mode.display();
-                if self.match_mode.show_map_location() {
+                let uses_template = self.match_mode.show_map_location();
+                let mut status = if uses_template {
                     apply_vars(
                         &cfg.in_match,
-                        &[("mode", mode), ("location", &cfg.match_location_label)],
+                        &[
+                            ("mode", mode),
+                            ("location", &cfg.match_location_label),
+                            ("timer", timer.unwrap_or("")),
+                        ],
                     )
                 } else {
                     mode.to_string()
+                };
+                // Templates written before {timer} existed still get the timer, appended.
+                let placed = uses_template && cfg.in_match.contains("{timer}");
+                if let Some(t) = timer.filter(|_| !placed) {
+                    status = format!("{status} - {t}");
                 }
+                status
             }
             GamePhase::PostMatch => cfg.post_match.clone(),
             GamePhase::Spectating => cfg.spectating.clone(),
@@ -252,4 +297,5 @@ impl GameState {
         }
     }
 }
+
 

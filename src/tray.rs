@@ -112,6 +112,17 @@ mod linux {
                         }
                         .into(),
                         CheckmarkItem {
+                            label: "Show Match Timer".to_string(),
+                            checked: self.shared.show_match_timer.load(Ordering::Relaxed),
+                            activate: Box::new(|tray: &mut Self| {
+                                let old = tray.shared.show_match_timer.fetch_xor(true, Ordering::Relaxed);
+                                crate::config::set_config_bool("presence", "show_match_timer", !old);
+                                tray.shared.settings_dirty.store(true, Ordering::Relaxed);
+                            }),
+                            ..Default::default()
+                        }
+                        .into(),
+                        CheckmarkItem {
                             label: "Show Statlocker Button".to_string(),
                             checked: self.shared.show_statlocker_button.load(Ordering::Relaxed),
                             activate: Box::new(|tray: &mut Self| {
@@ -318,6 +329,12 @@ mod windows {
             shared.show_hero_image.load(Ordering::Relaxed),
             None,
         );
+        let match_timer_item = CheckMenuItem::new(
+            "Show Match Timer",
+            true,
+            shared.show_match_timer.load(Ordering::Relaxed),
+            None,
+        );
         let statlocker_item = CheckMenuItem::new(
             "Show Statlocker Button",
             true,
@@ -370,6 +387,7 @@ mod windows {
                 &exit_item,
                 &PredefinedMenuItem::separator(),
                 &hero_item,
+                &match_timer_item,
                 &statlocker_item,
                 &portrait_menu,
                 &PredefinedMenuItem::separator(),
@@ -381,6 +399,7 @@ mod windows {
         let launch_id = launch_item.id().clone();
         let exit_id = exit_item.id().clone();
         let hero_id = hero_item.id().clone();
+        let match_timer_id = match_timer_item.id().clone();
         let statlocker_id = statlocker_item.id().clone();
         let portrait_normal_id = portrait_normal_item.id().clone();
         let portrait_gloat_id = portrait_gloat_item.id().clone();
@@ -459,6 +478,11 @@ mod windows {
                         let new_val = !shared.show_hero_image.fetch_xor(true, Ordering::Relaxed);
                         hero_item.set_checked(new_val);
                         crate::config::set_config_bool("presence", "show_hero_image", new_val);
+                        shared.settings_dirty.store(true, Ordering::Relaxed);
+                    } else if event.id == match_timer_id {
+                        let new_val = !shared.show_match_timer.fetch_xor(true, Ordering::Relaxed);
+                        match_timer_item.set_checked(new_val);
+                        crate::config::set_config_bool("presence", "show_match_timer", new_val);
                         shared.settings_dirty.store(true, Ordering::Relaxed);
                     } else if event.id == statlocker_id {
                         let new_val = !shared.show_statlocker_button.fetch_xor(true, Ordering::Relaxed);

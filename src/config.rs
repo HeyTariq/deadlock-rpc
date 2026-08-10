@@ -58,6 +58,7 @@ impl HeroPortraitStyle {
 #[serde(default)]
 pub struct PresenceConfig {
     pub show_hero_image: bool,
+    pub show_match_timer: bool,
     pub show_statlocker_button: bool,
     pub hero_portrait_style: HeroPortraitStyle,
     pub details_with_hero: String,
@@ -105,6 +106,7 @@ impl Default for PresenceConfig {
     fn default() -> Self {
         Self {
             show_hero_image: true,
+            show_match_timer: true,
             show_statlocker_button: false,
             hero_portrait_style: HeroPortraitStyle::Normal,
             details_with_hero: "Playing as {hero}".to_string(),
@@ -145,6 +147,7 @@ pub struct SharedBools {
     pub launch_game_on_start: AtomicBool,
     pub exit_when_game_closes: AtomicBool,
     pub show_hero_image: AtomicBool,
+    pub show_match_timer: AtomicBool,
     pub show_statlocker_button: AtomicBool,
     pub hero_portrait_style: AtomicU8,
     // Set by the tray when a presence setting changes so the RPC loop wakes early.
@@ -157,6 +160,7 @@ impl SharedBools {
             launch_game_on_start: AtomicBool::new(cfg.general.launch_game_on_start),
             exit_when_game_closes: AtomicBool::new(cfg.general.exit_when_game_closes),
             show_hero_image: AtomicBool::new(cfg.presence.show_hero_image),
+            show_match_timer: AtomicBool::new(cfg.presence.show_match_timer),
             show_statlocker_button: AtomicBool::new(cfg.presence.show_statlocker_button),
             hero_portrait_style: AtomicU8::new(cfg.presence.hero_portrait_style.as_u8()),
             settings_dirty: AtomicBool::new(false),
