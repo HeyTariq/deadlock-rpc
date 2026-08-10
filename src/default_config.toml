@@ -13,6 +13,9 @@ config_version = 2
 
 [presence]
 show_hero_image = true
+# Show how long the current match has been running, as a clock (e.g. "07:42"). Added to the
+# in-match status line, or placed with {timer} if presence.status.in_match uses that variable.
+show_match_timer = true
 # Show a Statlocker button when your Steam ID is detected in the game log.
 show_statlocker_button = false
 # Hero portrait style to display. Options: "normal", "gloat", "critical".
@@ -30,7 +33,7 @@ in_hideout = "In the Hideout"
 in_matchmaking = "Searching for a Match..."
 # Supports {mode} (e.g. "Ranked", "Unranked").
 loading_into_match = "{mode} - Loading into Match"
-# Supports {mode}.
+# Supports {mode} and {timer} (match duration, e.g. "07:42").
 in_match = "In Match: {mode}"
 match_location_label = "the Cursed Apple"
 post_match = "Reviewing Match Results"

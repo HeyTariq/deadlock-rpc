@@ -83,6 +83,7 @@ The tray icon's **Settings** menu lets you toggle the most common options withou
 | `general.launch_game_on_start` | Launch Game on Start |
 | `general.exit_when_game_closes` | Exit When Game Closes |
 | `presence.show_hero_image` | Show Hero Image |
+| `presence.show_match_timer` | Show Match Timer |
 | `presence.show_statlocker_button` | Show Statlocker Button |
 | `presence.hero_portrait_style` | Hero Portrait Style (Normal / Gloat / Critical) |
 
@@ -109,8 +110,8 @@ When a release renames or restructures config keys, the release includes a migra
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `presence.show_elapsed_timer` | `true` | Show the elapsed time counter. |
 | `presence.show_hero_image` | `true` | Show the hero image and name. |
+| `presence.show_match_timer` | `true` | Show how long the current match has been running. Shown as a clock, e.g. `07:42` (`1:07:42` past an hour). Added to the in-match status line, or placed with `{timer}` if `presence.status.in_match` uses that variable. |
 | `presence.show_statlocker_button` | `false` | Show a "View on Statlocker" button linking to your match history. Only visible to other Discord users, not yourself. |
 | `presence.hero_portrait_style` | `"normal"` | Hero portrait art style. Options: `"normal"`, `"gloat"` (celebration crop), `"critical"` (combat crop). |
 | `presence.details_with_hero` | `"Playing as {hero}"` | Top line when a hero is known. |
@@ -125,7 +126,7 @@ When a release renames or restructures config keys, the release includes a migra
 | `presence.status.in_hideout` | `"In the Hideout"` |
 | `presence.status.in_matchmaking` | `"Searching for a Match..."` |
 | `presence.status.loading_into_match` | `"{mode} - Loading into Match"` |
-| `presence.status.in_match` | `"In Match: {mode}"` |
+| `presence.status.in_match` | `"In Match: {mode}"` (also supports `{timer}`) |
 | `presence.status.match_location_label` | `"the Cursed Apple"` |
 | `presence.status.post_match` | `"Reviewing Match Results"` |
 | `presence.status.spectating` | `"Spectating a Match"` |
