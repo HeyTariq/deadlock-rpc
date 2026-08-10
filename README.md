@@ -111,7 +111,7 @@ When a release renames or restructures config keys, the release includes a migra
 | Key | Default | Description |
 |-----|---------|-------------|
 | `presence.show_hero_image` | `true` | Show the hero image and name. |
-| `presence.show_match_timer` | `true` | Show how long the current match has been running. Added to the in-match status line, or placed with `{timer}` if `presence.status.in_match` uses that variable. Shown in minutes. |
+| `presence.show_match_timer` | `true` | Show how long the current match has been running. Shown as a clock, e.g. `07:42` (`1:07:42` past an hour). Added to the in-match status line, or placed with `{timer}` if `presence.status.in_match` uses that variable. |
 | `presence.show_statlocker_button` | `false` | Show a "View on Statlocker" button linking to your match history. Only visible to other Discord users, not yourself. |
 | `presence.hero_portrait_style` | `"normal"` | Hero portrait art style. Options: `"normal"`, `"gloat"` (celebration crop), `"critical"` (combat crop). |
 | `presence.details_with_hero` | `"Playing as {hero}"` | Top line when a hero is known. |

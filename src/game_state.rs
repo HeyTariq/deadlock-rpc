@@ -65,14 +65,16 @@ impl GamePhase {
     }
 }
 
-// Renders a match duration for the presence line. Minute granularity on purpose: the presence
-// is only pushed every few seconds, so a seconds counter would read as stale between updates.
+// Renders a match duration as a clock: "07:42", or "1:07:42" once past an hour.
+// The value is computed at push time, so it is exact when sent and drifts by at most
+// one presence refresh (see MIN_TIMER_REFRESH_SECS in main.rs) before the next push.
 pub fn format_match_elapsed(d: std::time::Duration) -> String {
-    let total_mins = d.as_secs() / 60;
-    if total_mins < 60 {
-        format!("{}m", total_mins)
+    let total = d.as_secs();
+    let (hours, mins, secs) = (total / 3600, (total % 3600) / 60, total % 60);
+    if hours > 0 {
+        format!("{}:{:02}:{:02}", hours, mins, secs)
     } else {
-        format!("{}h {:02}m", total_mins / 60, total_mins % 60)
+        format!("{:02}:{:02}", mins, secs)
     }
 }
 

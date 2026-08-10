@@ -24,8 +24,12 @@ use std::time::Duration;
 
 const DISCORD_APP_ID: &str = "1474302474474094634";
 
-// Last pushed presence inputs. The trailing Option<String> is the rendered match timer, which
-// changes once a minute and so drives a refresh even when nothing else moved.
+// Floor for how often the ticking match timer alone may trigger a presence push, so a low
+// discord_update_interval_s cannot turn the clock into one Discord update per second.
+const MIN_TIMER_REFRESH_SECS: u64 = 5;
+
+// Last pushed presence inputs. The trailing Option<u64> is the match timer's refresh bucket,
+// which advances on its own and so drives a push even when nothing else moved.
 type LastRpcState = (
     GamePhase,
     MatchMode,
@@ -33,7 +37,7 @@ type LastRpcState = (
     u8,
     Option<String>,
     Option<u64>,
-    Option<String>,
+    Option<u64>,
 );
 
 fn connect_discord(app_id: &str) -> DiscordIpcClient {
@@ -144,16 +148,18 @@ fn run_rpc_loop(state: Arc<Mutex<GameState>>, cfg: config::Config, shared: Arc<c
         .unwrap_or(0);
 
     let update_interval = Duration::from_secs(cfg.general.discord_update_interval_s);
+    let timer_refresh_secs = cfg.general.discord_update_interval_s.max(MIN_TIMER_REFRESH_SECS);
 
     loop {
-        let (phase, match_mode, hero_key, party_size, map_name, account_id, timer_text) = {
+        let (phase, match_mode, hero_key, party_size, map_name, account_id, timer_text, timer_bucket) = {
             let gs = state.lock().unwrap();
-            let timer_text = if shared.show_match_timer.load(Ordering::Relaxed) {
-                gs.match_elapsed().map(format_match_elapsed)
+            let elapsed = if shared.show_match_timer.load(Ordering::Relaxed) {
+                gs.match_elapsed()
             } else {
                 None
             };
-            (gs.phase, gs.match_mode, gs.hero_key.clone(), gs.party_size, gs.map_name.clone(), gs.local_account_id, timer_text)
+            let timer_bucket = elapsed.map(|d| d.as_secs() / timer_refresh_secs);
+            (gs.phase, gs.match_mode, gs.hero_key.clone(), gs.party_size, gs.map_name.clone(), gs.local_account_id, elapsed.map(format_match_elapsed), timer_bucket)
         };
 
         if phase != GamePhase::NotRunning {
@@ -166,7 +172,7 @@ std::process::exit(0);
             }
         }
 
-        let current = (phase, match_mode, hero_key.clone(), party_size, map_name, account_id, timer_text.clone());
+        let current = (phase, match_mode, hero_key.clone(), party_size, map_name, account_id, timer_bucket);
         if last_state.as_ref() == Some(&current) {
             let deadline = std::time::Instant::now() + update_interval;
             let step = Duration::from_millis(500);
