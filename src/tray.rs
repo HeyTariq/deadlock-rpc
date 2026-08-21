@@ -275,7 +275,9 @@ mod linux {
                 // SNI requires ARGB32 in network (big-endian) byte order.
                 // image crate gives RGBA, so reorder each pixel: [A, R, G, B].
                 let argb: Vec<u8> = rgba
-                    .chunks_exact(4)
+                    .as_chunks::<4>()
+                    .0
+                    .iter()
                     .flat_map(|p| [p[3], p[0], p[1], p[2]])
                     .collect();
                 (argb, w as i32, h as i32)
