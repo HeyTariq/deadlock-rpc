@@ -2,39 +2,58 @@ use std::path::PathBuf;
 use std::sync::OnceLock;
 
 const DEADLOCK_APP_ID: &str = "1422450";
+const GAME_DIR_MARKER: &str = "game/citadel";
 const CONSOLE_LOG_SUFFIX: &str = "game/citadel/console.log";
 
 pub fn find_console_log(game_folder_override: Option<&str>) -> PathBuf {
-    // User-configured path takes priority over auto-detection.
+    // User-configured path takes priority, but only while it still points at an install.
+    // The folder is also written back by auto-detection, so a stale value here usually means
+    // the game was moved rather than that the user typed this path in.
     if let Some(folder) = game_folder_override.filter(|s| !s.is_empty()) {
         let game_dir = std::path::Path::new(folder);
-        let ends_with_deadlock = game_dir
-            .file_name()
-            .and_then(|n| n.to_str())
-            .map(|n| n.eq_ignore_ascii_case("Deadlock"))
-            .unwrap_or(false);
-        if !ends_with_deadlock {
-            log::warn!(
-                "[steam] game_folder does not end with \"Deadlock\": {}",
-                game_dir.display()
-            );
+        if is_deadlock_install(game_dir) {
+            let ends_with_deadlock = game_dir
+                .file_name()
+                .and_then(|n| n.to_str())
+                .map(|n| n.eq_ignore_ascii_case("Deadlock"))
+                .unwrap_or(false);
+            if !ends_with_deadlock {
+                log::warn!(
+                    "[steam] game_folder does not end with \"Deadlock\": {}",
+                    game_dir.display()
+                );
+            }
+            let path = game_dir.join(CONSOLE_LOG_SUFFIX);
+            log::info!("[steam] Using configured game_folder: {}", path.display());
+            return path;
         }
-        let path = game_dir.join(CONSOLE_LOG_SUFFIX);
-        log::info!("[steam] Using configured game_folder: {}", path.display());
-        return path;
+
+        log::warn!(
+            "[steam] Configured game_folder is no longer a Deadlock install: {}. Re-detecting.",
+            game_dir.display()
+        );
+        if let Some(path) = try_find_console_log() {
+            persist_game_root(&path);
+            return path;
+        }
+
+        let fallback = game_dir.join(CONSOLE_LOG_SUFFIX);
+        log::warn!(
+            "[steam] Re-detection failed. Keeping configured game_folder: {}",
+            fallback.display()
+        );
+        crate::notify::warn_alert(
+            "Your configured Deadlock folder no longer exists and the game could not be \
+            found in your Steam library.\n\
+            Rich presence may not update. Set game_folder in config.toml \
+            to your Deadlock install folder.",
+        );
+        return fallback;
     }
 
     match try_find_console_log() {
         Some(path) => {
-            // Strip the console.log suffix to get the Deadlock root folder.
-            let game_root = path
-                .ancestors()
-                .nth(3) // strip game/citadel/console.log
-                .map(|p| p.to_string_lossy().into_owned());
-            if let Some(root) = game_root {
-                log::info!("[steam] Auto-detected game folder saved to config: {root}");
-                crate::config::set_config_string("general", "game_folder", &root);
-            }
+            persist_game_root(&path);
             path
         }
         None => {
@@ -51,6 +70,25 @@ pub fn find_console_log(game_folder_override: Option<&str>) -> PathBuf {
             );
             fallback
         }
+    }
+}
+
+// A real install always has game/citadel. console.log itself only appears once the game has run
+// with -condebug, so its absence is normal and cannot signal a stale folder.
+fn is_deadlock_install(game_dir: &std::path::Path) -> bool {
+    game_dir.join(GAME_DIR_MARKER).is_dir()
+}
+
+// Caches the detected Deadlock root in config.toml so later runs skip detection.
+fn persist_game_root(console_log: &std::path::Path) {
+    // Strip the console.log suffix to get the Deadlock root folder.
+    let game_root = console_log
+        .ancestors()
+        .nth(3) // strip game/citadel/console.log
+        .map(|p| p.to_string_lossy().into_owned());
+    if let Some(root) = game_root {
+        log::info!("[steam] Auto-detected game folder saved to config: {root}");
+        crate::config::set_config_string("general", "game_folder", &root);
     }
 }
 

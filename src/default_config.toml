@@ -5,7 +5,8 @@ exit_when_game_closes = true
 auto_update = false
 game_log_poll_interval_ms = 500
 discord_update_interval_s = 5
-# Override the Deadlock install location if auto-detection fails.
+# Override the Deadlock install location if auto-detection fails. Filled in automatically once
+# the game is found, and re-detected if the folder ever stops being a Deadlock install.
 # Example: steamapps\common\Deadlock
 game_folder = ""
 # Set to true after the user declines the shortcut install prompt. Managed automatically.
