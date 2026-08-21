@@ -82,6 +82,7 @@ The tray icon's **Settings** menu lets you toggle the most common options withou
 |---------|------------|
 | `general.launch_game_on_start` | Launch Game on Start |
 | `general.exit_when_game_closes` | Exit When Game Closes |
+| `general.auto_update` | Auto Update |
 | `presence.show_hero_image` | Show Hero Image |
 | `presence.show_match_timer` | Show Match Timer |
 | `presence.show_statlocker_button` | Show Statlocker Button |
@@ -103,6 +104,7 @@ When a release renames or restructures config keys, the release includes a migra
 |-----|---------|-------------|
 | `general.launch_game_on_start` | `true` | Launch Deadlock on startup. |
 | `general.exit_when_game_closes` | `true` | Exit when the game closes. |
+| `general.auto_update` | `false` | Install available updates automatically instead of showing the update prompt. |
 | `general.game_log_poll_interval_ms` | `500` | How often (ms) to check the game log. Lower = faster updates. |
 | `general.discord_update_interval_s` | `5` | How often (seconds) to refresh the Discord presence card. |
 

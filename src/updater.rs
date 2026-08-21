@@ -72,17 +72,11 @@ fn extract_binary(zip_bytes: &[u8]) -> Result<Vec<u8>, Box<dyn std::error::Error
 // Debug-only: simulates an update prompt for v99.9.9, fake-downloads, then
 // re-execs the binary without `--simulate-update` to mimic a post-update launch.
 #[cfg(debug_assertions)]
-pub fn simulate_update() {
+pub fn simulate_update(auto_update: bool) {
     const FAKE_VERSION: &str = "99.9.9";
     debug!("[updater] Simulating update to v{FAKE_VERSION}");
 
-    #[cfg(unix)]
-    if !prompt_update_linux(FAKE_VERSION) {
-        debug!("[updater] User skipped simulated update");
-        return;
-    }
-    #[cfg(windows)]
-    if !prompt_update_windows(FAKE_VERSION) {
+    if !auto_update && !prompt_update(FAKE_VERSION) {
         debug!("[updater] User skipped simulated update");
         return;
     }
@@ -121,16 +115,18 @@ pub fn simulate_update() {
 // is prompted. If they accept, the update is downloaded, applied, and the
 // process is replaced (Linux: exec, Windows: PowerShell swap + exit).
 // Any error is logged and startup continues normally.
-pub fn check_on_startup() {
-    if let Err(e) = try_check() {
+pub fn check_on_startup(auto_update: bool) {
+    if let Err(e) = try_check(auto_update) {
         warn!("[updater] Check failed: {e}");
     }
 }
 
 // Called from the tray menu. Same flow as check_on_startup but notifies the
 // user when already on the latest version (otherwise there is no feedback).
-pub fn check_from_tray() {
-    match try_check() {
+// Reads auto_update at click time so a tray toggle applies without a restart.
+pub fn check_from_tray(shared: std::sync::Arc<crate::config::SharedBools>) {
+    let auto_update = shared.auto_update.load(std::sync::atomic::Ordering::Relaxed);
+    match try_check(auto_update) {
         Ok(false) => crate::notify::alert("Already on the latest version."),
         Ok(true) => {}
         Err(e) => warn!("[updater] Check failed: {e}"),
@@ -139,7 +135,7 @@ pub fn check_from_tray() {
 
 // Returns Ok(true) if a newer release was found (user prompted, may have
 // applied), Ok(false) if already on the latest version.
-fn try_check() -> Result<bool, Box<dyn std::error::Error>> {
+fn try_check(auto_update: bool) -> Result<bool, Box<dyn std::error::Error>> {
     info!("[updater] Checking for updates (current: v{CURRENT_VERSION})");
 
     let client = ureq::AgentBuilder::new()
@@ -155,15 +151,10 @@ fn try_check() -> Result<bool, Box<dyn std::error::Error>> {
         return Ok(false);
     }
 
-    // Ask the user before downloading anything.
-    #[cfg(unix)]
-    if !prompt_update_linux(release.tag_name.trim_start_matches('v')) {
-        info!("[updater] User skipped update");
-        return Ok(true);
-    }
-
-    #[cfg(windows)]
-    if !prompt_update_windows(release.tag_name.trim_start_matches('v')) {
+    // Ask the user before downloading anything, unless they opted into auto-updates.
+    if auto_update {
+        info!("[updater] auto_update enabled — installing without prompting");
+    } else if !prompt_update(release.tag_name.trim_start_matches('v')) {
         info!("[updater] User skipped update");
         return Ok(true);
     }
@@ -200,6 +191,18 @@ fn try_check() -> Result<bool, Box<dyn std::error::Error>> {
 }
 
 const CHANGELOG_URL: &str = "https://github.com/HeyTariq/deadlock-rpc/releases/latest";
+
+// Shows the platform's update dialog. Returns true if the user chose to update.
+fn prompt_update(new_version: &str) -> bool {
+    #[cfg(unix)]
+    {
+        prompt_update_linux(new_version)
+    }
+    #[cfg(windows)]
+    {
+        prompt_update_windows(new_version)
+    }
+}
 
 // Blocking Yes/No dialog on Linux — tries zenity (GTK/GNOME) then kdialog (KDE).
 // Loops if the user clicks "View Changelog" (opens browser, then re-shows the prompt).
