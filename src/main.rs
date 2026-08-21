@@ -294,23 +294,24 @@ fn main() {
 
     logger::init();
 
+    // Loaded before the update check so auto_update is known by then.
+    let cfg = config::load();
+    info!("[config] Loaded from config.toml");
+
+    let shared = Arc::new(config::SharedBools::from_config(&cfg));
+
     // Debug-only: --simulate-update fakes the full update flow then re-execs.
     #[cfg(debug_assertions)]
     if args.iter().any(|a| a == "--simulate-update") {
-        updater::simulate_update();
+        updater::simulate_update(cfg.general.auto_update);
     }
 
     // Check for updates before acquiring the instance lock.
     // If an update is applied: on Linux exec() replaces this process in-place;
     // on Windows we exit before the port is ever bound — so no lock conflicts.
-    updater::check_on_startup();
+    updater::check_on_startup(cfg.general.auto_update);
 
     let instance_lock = try_acquire_single_instance_lock();
-
-    let cfg = config::load();
-    info!("[config] Loaded from config.toml");
-
-    let shared = Arc::new(config::SharedBools::from_config(&cfg));
 
     let no_launch_flag = args.iter().any(|a| a == "--no-launch");
     // --no-launch CLI flag always overrides auto_launch, even if config enables it.
