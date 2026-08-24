@@ -210,7 +210,8 @@ fn prompt_update(new_version: &str) -> bool {
 #[cfg(unix)]
 fn prompt_update_linux(new_version: &str) -> bool {
     let text = format!(
-        "v{new_version} is available (you have v{CURRENT_VERSION}).\nDownload and install now?"
+        "v{new_version} is available (you have v{CURRENT_VERSION}).\nDownload and install now?\n\n\
+        Tip: turn on Auto Update in the tray icon's Settings menu to install future updates without being asked."
     );
 
     loop {
@@ -271,7 +272,8 @@ fn prompt_update_windows(new_version: &str) -> bool {
         "v{new_version} is available (you have v{CURRENT_VERSION}).\r\n\r\n\
         Yes \u{2014} Update Now\r\n\
         No \u{2014} Skip\r\n\
-        Cancel \u{2014} View Changelog"
+        Cancel \u{2014} View Changelog\r\n\r\n\
+        Tip: turn on Auto Update in the tray icon's Settings menu to install future updates without being asked."
     );
     let caption = to_wide("Deadlock RPC Update");
 
