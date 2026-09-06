@@ -15,6 +15,7 @@ pub struct Config {
 pub struct GeneralConfig {
     pub launch_game_on_start: bool,
     pub exit_when_game_closes: bool,
+    pub auto_update: bool,
     pub game_log_poll_interval_ms: u64,
     pub discord_update_interval_s: u64,
     // Overrides auto-detection when set to a non-empty path.
@@ -94,6 +95,7 @@ impl Default for GeneralConfig {
         Self {
             launch_game_on_start: true,
             exit_when_game_closes: true,
+            auto_update: false,
             game_log_poll_interval_ms: 500,
             discord_update_interval_s: 5,
             game_folder: None,
@@ -146,6 +148,7 @@ impl Default for ImagesConfig {
 pub struct SharedBools {
     pub launch_game_on_start: AtomicBool,
     pub exit_when_game_closes: AtomicBool,
+    pub auto_update: AtomicBool,
     pub show_hero_image: AtomicBool,
     pub show_match_timer: AtomicBool,
     pub show_statlocker_button: AtomicBool,
@@ -159,6 +162,7 @@ impl SharedBools {
         Self {
             launch_game_on_start: AtomicBool::new(cfg.general.launch_game_on_start),
             exit_when_game_closes: AtomicBool::new(cfg.general.exit_when_game_closes),
+            auto_update: AtomicBool::new(cfg.general.auto_update),
             show_hero_image: AtomicBool::new(cfg.presence.show_hero_image),
             show_match_timer: AtomicBool::new(cfg.presence.show_match_timer),
             show_statlocker_button: AtomicBool::new(cfg.presence.show_statlocker_button),

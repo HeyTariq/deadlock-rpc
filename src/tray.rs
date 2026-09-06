@@ -99,6 +99,16 @@ mod linux {
                             ..Default::default()
                         }
                         .into(),
+                        CheckmarkItem {
+                            label: "Auto Update".to_string(),
+                            checked: self.shared.auto_update.load(Ordering::Relaxed),
+                            activate: Box::new(|tray: &mut Self| {
+                                let old = tray.shared.auto_update.fetch_xor(true, Ordering::Relaxed);
+                                crate::config::set_config_bool("general", "auto_update", !old);
+                            }),
+                            ..Default::default()
+                        }
+                        .into(),
                         ksni::MenuItem::Separator,
                         CheckmarkItem {
                             label: "Show Hero Image".to_string(),
@@ -221,8 +231,9 @@ mod linux {
                 ksni::MenuItem::Separator,
                 StandardItem {
                     label: "Check for Updates".to_string(),
-                    activate: Box::new(|_| {
-                        std::thread::spawn(crate::updater::check_from_tray);
+                    activate: Box::new(|tray: &mut Self| {
+                        let shared = Arc::clone(&tray.shared);
+                        std::thread::spawn(move || crate::updater::check_from_tray(shared));
                     }),
                     ..Default::default()
                 }
@@ -264,7 +275,9 @@ mod linux {
                 // SNI requires ARGB32 in network (big-endian) byte order.
                 // image crate gives RGBA, so reorder each pixel: [A, R, G, B].
                 let argb: Vec<u8> = rgba
-                    .chunks_exact(4)
+                    .as_chunks::<4>()
+                    .0
+                    .iter()
                     .flat_map(|p| [p[3], p[0], p[1], p[2]])
                     .collect();
                 (argb, w as i32, h as i32)
@@ -321,6 +334,12 @@ mod windows {
             "Exit When Game Closes",
             true,
             shared.exit_when_game_closes.load(Ordering::Relaxed),
+            None,
+        );
+        let auto_update_item = CheckMenuItem::new(
+            "Auto Update",
+            true,
+            shared.auto_update.load(Ordering::Relaxed),
             None,
         );
         let hero_item = CheckMenuItem::new(
@@ -385,6 +404,7 @@ mod windows {
             .append_items(&[
                 &launch_item,
                 &exit_item,
+                &auto_update_item,
                 &PredefinedMenuItem::separator(),
                 &hero_item,
                 &match_timer_item,
@@ -398,6 +418,7 @@ mod windows {
 
         let launch_id = launch_item.id().clone();
         let exit_id = exit_item.id().clone();
+        let auto_update_id = auto_update_item.id().clone();
         let hero_id = hero_item.id().clone();
         let match_timer_id = match_timer_item.id().clone();
         let statlocker_id = statlocker_item.id().clone();
@@ -455,7 +476,8 @@ mod windows {
                             }
                         }
                     } else if event.id == check_updates_id {
-                        std::thread::spawn(crate::updater::check_from_tray);
+                        let shared = Arc::clone(&shared);
+                        std::thread::spawn(move || crate::updater::check_from_tray(shared));
                     } else if event.id == latest_changes_id {
                         let _ = std::process::Command::new("cmd")
                             .args(["/c", "start", "", "https://github.com/HeyTariq/deadlock-rpc/releases/latest"])
@@ -474,6 +496,10 @@ mod windows {
                         let new_val = !shared.exit_when_game_closes.fetch_xor(true, Ordering::Relaxed);
                         exit_item.set_checked(new_val);
                         crate::config::set_config_bool("general", "exit_when_game_closes", new_val);
+                    } else if event.id == auto_update_id {
+                        let new_val = !shared.auto_update.fetch_xor(true, Ordering::Relaxed);
+                        auto_update_item.set_checked(new_val);
+                        crate::config::set_config_bool("general", "auto_update", new_val);
                     } else if event.id == hero_id {
                         let new_val = !shared.show_hero_image.fetch_xor(true, Ordering::Relaxed);
                         hero_item.set_checked(new_val);
