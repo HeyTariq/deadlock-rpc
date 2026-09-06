@@ -93,6 +93,8 @@ pub struct GameState {
     pub(crate) local_account_id: Option<u64>,
     pub(crate) party_id: Option<u64>,
     pub(crate) party_members: HashSet<u64>,
+    // Members the hideout headcount proves exist but that no party event ever named.
+    pub(crate) party_unknown_members: u8,
     pub(crate) pending_player_count: u32,
 }
 
@@ -110,6 +112,7 @@ impl GameState {
             local_account_id: None,
             party_id: None,
             party_members: HashSet::new(),
+            party_unknown_members: 0,
             pending_player_count: 0,
         }
     }
@@ -129,31 +132,57 @@ impl GameState {
     pub(crate) fn clear_party(&mut self) {
         self.party_id = None;
         self.party_members.clear();
+        self.party_unknown_members = 0;
         self.party_size = 1;
+    }
+
+    fn recompute_party_size(&mut self) {
+        let known = self.party_members.len().min(6) as u8;
+        self.party_size = known.saturating_add(self.party_unknown_members).clamp(1, 6);
+    }
+
+    /// Ground truth from the shared hideout, which only party members can enter.
+    /// Party events are the delta between two of these snapshots.
+    pub(crate) fn apply_hideout_player_count(&mut self, count: u32) {
+        let count = count.min(6) as u8;
+        self.party_unknown_members = count.saturating_sub(self.party_members.len() as u8);
+        self.recompute_party_size();
     }
 
     pub(crate) fn apply_party_event(&mut self, party_id: u64, event_name: &str, account_id: u64) {
         let ev = event_name.to_lowercase();
+        let local = self.local_account_id.unwrap_or(u64::MAX);
+
         if ev.contains("joinedparty") {
-            let local = self.local_account_id.unwrap_or(u64::MAX);
             if account_id == local {
+                // We joined a party that may already have members the GC never announces.
                 self.party_id = Some(party_id);
                 self.party_members = std::iter::once(account_id).collect();
-            } else if self.party_id != Some(party_id) {
-                self.party_id = Some(party_id);
-                self.party_members.clear();
+                self.party_unknown_members = 1;
+            } else {
+                if self.party_id != Some(party_id) {
+                    self.party_id = Some(party_id);
+                    self.party_members.clear();
+                    self.party_unknown_members = 0;
+                    if self.local_account_id.is_some() {
+                        self.party_members.insert(local);
+                    }
+                }
+                self.party_members.insert(account_id);
             }
-            self.party_members.insert(account_id);
-            self.party_size = (self.party_members.len() as u8).max(2);
+            self.recompute_party_size();
         } else if ev.contains("leftparty")
             || ev.contains("removedfromparty")
             || ev.contains("kickedfromparty")
         {
-            if account_id == self.local_account_id.unwrap_or(u64::MAX) {
+            if account_id == local {
                 self.clear_party();
             } else {
-                self.party_members.remove(&account_id);
-                self.party_size = (self.party_members.len() as u8).max(1);
+                // Someone we never had a name for must be one of the unnamed members.
+                if !self.party_members.remove(&account_id) {
+                    self.party_unknown_members = self.party_unknown_members.saturating_sub(1);
+                }
+                self.recompute_party_size();
             }
         } else if ev.contains("disband") {
             self.clear_party();

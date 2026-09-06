@@ -626,7 +626,12 @@ fn apply_event(event: Event, state: &mut GameState, is_hideout_map: bool) {
             }
         }
         Event::PlayerInfo(count) => {
-            if matches!(state.phase, GamePhase::MatchIntro | GamePhase::InMatch) {
+            // In the shared hideout this headcount is the party headcount, the only
+            // signal that sees members who joined before we did.
+            if state.phase == GamePhase::Hideout && is_hideout_map && count > 0 {
+                debug!("[dbg] matched hideout player_info: count={count}");
+                state.apply_hideout_player_count(count);
+            } else if matches!(state.phase, GamePhase::MatchIntro | GamePhase::InMatch) {
                 debug!("[dbg] matched player_info: count={count} pending={} mode={:?}", state.pending_player_count, state.match_mode);
                 if count > 0 {
                     state.pending_player_count = state.pending_player_count.max(count);
