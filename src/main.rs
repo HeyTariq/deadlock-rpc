@@ -319,7 +319,7 @@ fn main() {
         false => Vec::default(),
     };
     
-    if launch_with_command_flag && game_launch_command.len() == 0 {
+    if launch_with_command_flag && game_launch_command.is_empty() {
         info!("[deadlock-rpc] --launch-with-command was specified, but no launch command was provided!");
         std::process::exit(0);
     }

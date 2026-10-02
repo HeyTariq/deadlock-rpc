@@ -18,7 +18,7 @@ pub fn launch_deadlock() {
     }
 }
 
-pub fn launch_deadlock_with_command(cmd: &Vec<String>) {
+pub fn launch_deadlock_with_command(cmd: &[String]) {
     info!("[launcher] Launching Deadlock with -condebug...");
     match launch_with_command(cmd) {
         Ok(_) => info!("[launcher] Launch command initiated."),
@@ -32,8 +32,8 @@ pub fn launch_deadlock_with_command(cmd: &Vec<String>) {
     }
 }
 
-fn launch_with_command(cmd: &Vec<String>) -> std::io::Result<()> {
-    std::process::Command::new(cmd.get(0).unwrap())
+fn launch_with_command(cmd: &[String]) -> std::io::Result<()> {
+    std::process::Command::new(cmd.first().unwrap())
         .args(&cmd[1..])
         .arg("-condebug")
         .stdout(std::process::Stdio::null())
