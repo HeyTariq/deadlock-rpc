@@ -324,8 +324,6 @@ fn main() {
         std::process::exit(0);
     }
 
-    info!("Found positional arguments: {}", game_launch_command.join(", "));
-
     let no_launch_flag = game_launch_command.iter().any(|a| a == "--no-launch");
     // --no-launch CLI flag always overrides auto_launch, even if config enables it.
     let no_launch = no_launch_flag || !cfg.general.launch_game_on_start;
