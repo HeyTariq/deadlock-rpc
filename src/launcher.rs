@@ -18,6 +18,30 @@ pub fn launch_deadlock() {
     }
 }
 
+pub fn launch_deadlock_with_command(cmd: &[String]) {
+    info!("[launcher] Launching Deadlock with -condebug...");
+    match launch_with_command(cmd) {
+        Ok(_) => info!("[launcher] Launch command initiated."),
+        Err(e) => {
+            warn!("[launcher] Failed to launch Deadlock: {e}");
+            crate::notify::warn_alert(
+                "Failed to launch Deadlock.\n\
+                Make sure Steam is installed and running, then launch the game manually.",
+            );
+        }
+    }
+}
+
+fn launch_with_command(cmd: &[String]) -> std::io::Result<()> {
+    std::process::Command::new(cmd.first().unwrap())
+        .args(&cmd[1..])
+        .arg("-condebug")
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .spawn()
+        .map(|_| ())
+}
+
 #[cfg(unix)]
 fn launch_via_steam() -> std::io::Result<()> {
     let steam = crate::steam::steam_exe_path()
