@@ -313,11 +313,26 @@ fn main() {
 
     let instance_lock = try_acquire_single_instance_lock();
 
-    let no_launch_flag = args.iter().any(|a| a == "--no-launch");
+    let launch_with_command_flag = args.iter().any(|a| a == "--launch-with-command");
+    let game_launch_command: Vec<String> = match launch_with_command_flag {
+        true => args.iter().skip_while(|a| *a != "--").skip(1).map(String::clone).collect(),
+        false => Vec::default(),
+    };
+    
+    if launch_with_command_flag && game_launch_command.len() == 0 {
+        info!("[deadlock-rpc] --launch-with-command was specified, but no launch command was provided!");
+        std::process::exit(0);
+    }
+
+    info!("Found positional arguments: {}", game_launch_command.join(", "));
+
+    let no_launch_flag = game_launch_command.iter().any(|a| a == "--no-launch");
     // --no-launch CLI flag always overrides auto_launch, even if config enables it.
     let no_launch = no_launch_flag || !cfg.general.launch_game_on_start;
     #[cfg(not(debug_assertions))]
-    let no_shortcut = args.iter().any(|a| a == "--no-shortcut");
+    let no_shortcut_flag = args.iter().any(|a| a == "--no-shortcut");
+    #[cfg(not(debug_assertions))]
+    let no_shortcut = launch_with_command_flag || no_shortcut_flag;
 
     if instance_lock.is_none() {
         if !no_launch_flag {
@@ -336,8 +351,11 @@ fn main() {
         launcher::install_shortcut(&cfg);
     }
 
-    if !no_launch {
+    if !no_launch && !launch_with_command_flag {
         launcher::launch_deadlock();
+    }
+    if launch_with_command_flag {
+        launcher::launch_deadlock_with_command(&game_launch_command);
     }
 
     let log_path = steam::find_console_log(cfg.general.game_folder.as_deref());
