@@ -284,10 +284,26 @@ std::process::exit(0);
     }
 }
 
+/// How the game gets started when the app launches.
+enum LaunchMode {
+    /// Don't start the game.
+    None,
+    /// Start it through `steam -applaunch`.
+    Steam,
+    /// Run the command Steam passed in after `--` (from `%command%` in launch options).
+    Command(Vec<String>),
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
+    // Everything after `--` is the game command, so our own flags are only read from before it.
+    let (args, game_command) = match args.iter().position(|a| a == "--") {
+        Some(i) => (&args[..i], &args[i + 1..]),
+        None => (&args[..], &[][..]),
+    };
+    let has_flag = |flag: &str| args.iter().any(|a| a == flag);
 
-    if args.iter().any(|a| a == "--generate-config") {
+    if has_flag("--generate-config") {
         std::fs::write("config.toml", config::DEFAULT_TOML).expect("failed to write config.toml");
         return;
     }
@@ -302,7 +318,7 @@ fn main() {
 
     // Debug-only: --simulate-update fakes the full update flow then re-execs.
     #[cfg(debug_assertions)]
-    if args.iter().any(|a| a == "--simulate-update") {
+    if has_flag("--simulate-update") {
         updater::simulate_update(cfg.general.auto_update);
     }
 
@@ -313,27 +329,31 @@ fn main() {
 
     let instance_lock = try_acquire_single_instance_lock();
 
-    let launch_with_command_flag = args.iter().any(|a| a == "--launch-with-command");
-    let game_launch_command: Vec<String> = match launch_with_command_flag {
-        true => args.iter().skip_while(|a| *a != "--").skip(1).map(String::clone).collect(),
-        false => Vec::default(),
+    let no_launch_flag = has_flag("--no-launch");
+    let launch_mode = if has_flag("--launch-with-command") {
+        if game_command.is_empty() {
+            warn!("[deadlock-rpc] --launch-with-command needs a command after --, e.g. -- %command%. Exiting.");
+            std::process::exit(1);
+        }
+        LaunchMode::Command(game_command.to_vec())
+    } else if no_launch_flag || !cfg.general.launch_game_on_start {
+        // --no-launch CLI flag always overrides auto_launch, even if config enables it.
+        LaunchMode::None
+    } else {
+        LaunchMode::Steam
     };
-    
-    if launch_with_command_flag && game_launch_command.is_empty() {
-        info!("[deadlock-rpc] --launch-with-command was specified, but no launch command was provided!");
-        std::process::exit(0);
-    }
-
-    let no_launch_flag = game_launch_command.iter().any(|a| a == "--no-launch");
-    // --no-launch CLI flag always overrides auto_launch, even if config enables it.
-    let no_launch = no_launch_flag || !cfg.general.launch_game_on_start;
+    // Steam launch options are not a place for the shortcut prompt, so the command flow skips it.
     #[cfg(not(debug_assertions))]
-    let no_shortcut_flag = args.iter().any(|a| a == "--no-shortcut");
-    #[cfg(not(debug_assertions))]
-    let no_shortcut = launch_with_command_flag || no_shortcut_flag;
+    let no_shortcut = has_flag("--no-shortcut") || matches!(launch_mode, LaunchMode::Command(_));
 
     if instance_lock.is_none() {
-        if !no_launch_flag {
+        if let LaunchMode::Command(cmd) = &launch_mode {
+            // Steam treats this process as the game, so stay alive until the game exits.
+            info!("[deadlock-rpc] Another instance is running. Launching the game and waiting for it to exit.");
+            if let Some(mut child) = launcher::launch_deadlock_with_command(cmd) {
+                let _ = child.wait();
+            }
+        } else if !no_launch_flag {
             info!("[deadlock-rpc] Another instance is running — re-triggering launch (Steam may be updating).");
             launcher::launch_deadlock();
         } else {
@@ -349,11 +369,12 @@ fn main() {
         launcher::install_shortcut(&cfg);
     }
 
-    if !no_launch && !launch_with_command_flag {
-        launcher::launch_deadlock();
-    }
-    if launch_with_command_flag {
-        launcher::launch_deadlock_with_command(&game_launch_command);
+    match &launch_mode {
+        LaunchMode::None => {}
+        LaunchMode::Steam => launcher::launch_deadlock(),
+        LaunchMode::Command(cmd) => {
+            launcher::launch_deadlock_with_command(cmd);
+        }
     }
 
     let log_path = steam::find_console_log(cfg.general.game_folder.as_deref());

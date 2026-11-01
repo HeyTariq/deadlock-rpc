@@ -18,28 +18,30 @@ pub fn launch_deadlock() {
     }
 }
 
-pub fn launch_deadlock_with_command(cmd: &[String]) {
-    info!("[launcher] Launching Deadlock with -condebug...");
-    match launch_with_command(cmd) {
-        Ok(_) => info!("[launcher] Launch command initiated."),
-        Err(e) => {
-            warn!("[launcher] Failed to launch Deadlock: {e}");
-            crate::notify::warn_alert(
-                "Failed to launch Deadlock.\n\
-                Make sure Steam is installed and running, then launch the game manually.",
-            );
-        }
-    }
-}
-
-fn launch_with_command(cmd: &[String]) -> std::io::Result<()> {
-    std::process::Command::new(cmd.first().unwrap())
-        .args(&cmd[1..])
+/// Runs the game command Steam passed in through `%command%`, with `-condebug` appended.
+pub fn launch_deadlock_with_command(cmd: &[String]) -> Option<std::process::Child> {
+    let (program, args) = cmd.split_first()?;
+    info!("[launcher] Launching Deadlock via command with -condebug...");
+    match std::process::Command::new(program)
+        .args(args)
         .arg("-condebug")
         .stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .spawn()
-        .map(|_| ())
+    {
+        Ok(child) => {
+            info!("[launcher] Launch command started.");
+            Some(child)
+        }
+        Err(e) => {
+            warn!("[launcher] Failed to run launch command {program}: {e}");
+            crate::notify::warn_alert(&format!(
+                "Failed to launch Deadlock with the command:\n{program}\n\n\
+                Check Deadlock's launch options in Steam."
+            ));
+            None
+        }
+    }
 }
 
 #[cfg(unix)]
