@@ -22,6 +22,7 @@ struct ApiImages {
     icon_hero_card: Option<String>,
     hero_card_gloat: Option<String>,
     hero_card_critical: Option<String>,
+    icon_image_small: Option<String>,
 }
 
 pub struct HeroCache {
@@ -93,6 +94,15 @@ fn fetch(client: &ureq::Agent, hero_key: &str, portrait_style: HeroPortraitStyle
                 debug!("[api] {hero_key}: critical portrait unavailable, falling back to icon_hero_card");
             }
             critical.or(images.icon_hero_card).unwrap_or_default()
+        }
+        HeroPortraitStyle::Icon => {
+            let icon = images.icon_image_small.filter(|s| !s.is_empty());
+            if icon.is_some() {
+                debug!("[api] {hero_key}: using icon portrait");
+            } else {
+                debug!("[api] {hero_key}: icon portrait unavailable, falling back to icon_hero_card");
+            }
+            icon.or(images.icon_hero_card).unwrap_or_default()
         }
     };
     Ok(HeroData {
