@@ -67,6 +67,14 @@ From now on, launch Deadlock through the **Deadlock RPC** shortcut instead of di
 
 If you prefer to launch Deadlock your own way, add `-condebug` to Deadlock's launch options in Steam (right-click Deadlock in your library, Properties, Launch Options). This generates the log file the app needs to function.
 
+You can also have Steam start Deadlock RPC every time you press Play on Deadlock. Set Deadlock's launch options to the full path of the executable followed by `--launch-with-command -- %command%`:
+
+```sh
+/path/to/deadlock-rpc --launch-with-command -- %command%
+```
+
+On Windows, use the path to `deadlock-rpc.exe` and wrap it in quotes if it contains spaces. The app starts the game for you with `-condebug` added, skips the shortcut prompt, and closes with the game as long as `exit_when_game_closes` is enabled.
+
 > [!TIP]
 > You can add the Deadlock RPC executable as a non-Steam game so you can launch it straight from your Steam library. [Steam's guide](https://help.steampowered.com/en/faqs/view/4B8B-9697-2338-40EC) explains how.
 
@@ -178,6 +186,7 @@ exit_when_game_closes = false
 |------|-------------|
 | `--no-launch` | Skip launching Deadlock on startup, even if `launch_game_on_start` is enabled in config. |
 | `--no-shortcut` | Skip the shortcut install prompt. Useful for automated or CI setups. |
+| `--launch-with-command -- <command>` | Launch the game by running `<command>` with `-condebug` appended, instead of going through Steam. Meant for Steam launch options with `%command%`. Implies `--no-shortcut`. |
 | `--generate-config` | Write a fresh `config.toml` with all defaults to the current directory, then exit. |
 
 ## Building from Source
