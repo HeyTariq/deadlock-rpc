@@ -18,6 +18,32 @@ pub fn launch_deadlock() {
     }
 }
 
+/// Runs the game command Steam passed in through `%command%`, with `-condebug` appended.
+pub fn launch_deadlock_with_command(cmd: &[String]) -> Option<std::process::Child> {
+    let (program, args) = cmd.split_first()?;
+    info!("[launcher] Launching Deadlock via command with -condebug...");
+    match std::process::Command::new(program)
+        .args(args)
+        .arg("-condebug")
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .spawn()
+    {
+        Ok(child) => {
+            info!("[launcher] Launch command started.");
+            Some(child)
+        }
+        Err(e) => {
+            warn!("[launcher] Failed to run launch command {program}: {e}");
+            crate::notify::warn_alert(&format!(
+                "Failed to launch Deadlock with the command:\n{program}\n\n\
+                Check Deadlock's launch options in Steam."
+            ));
+            None
+        }
+    }
+}
+
 #[cfg(unix)]
 fn launch_via_steam() -> std::io::Result<()> {
     let steam = crate::steam::steam_exe_path()
