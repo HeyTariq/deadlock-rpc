@@ -34,6 +34,8 @@ pub enum HeroPortraitStyle {
     Gloat,
     /// Critical/combat portrait.
     Critical,
+    /// Small hero icon.
+    Icon,
 }
 
 impl HeroPortraitStyle {
@@ -42,6 +44,7 @@ impl HeroPortraitStyle {
             HeroPortraitStyle::Normal => 0,
             HeroPortraitStyle::Gloat => 1,
             HeroPortraitStyle::Critical => 2,
+            HeroPortraitStyle::Icon => 3,
         }
     }
 
@@ -49,6 +52,7 @@ impl HeroPortraitStyle {
         match val {
             1 => HeroPortraitStyle::Gloat,
             2 => HeroPortraitStyle::Critical,
+            3 => HeroPortraitStyle::Icon,
             _ => HeroPortraitStyle::Normal,
         }
     }
