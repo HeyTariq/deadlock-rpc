@@ -36,6 +36,8 @@ pub enum HeroPortraitStyle {
     Critical,
     /// Small hero icon.
     Icon,
+    /// Full-body art uploaded as Discord app assets, keyed by hero key.
+    FullBody,
 }
 
 impl HeroPortraitStyle {
@@ -45,6 +47,7 @@ impl HeroPortraitStyle {
             HeroPortraitStyle::Gloat => 1,
             HeroPortraitStyle::Critical => 2,
             HeroPortraitStyle::Icon => 3,
+            HeroPortraitStyle::FullBody => 4,
         }
     }
 
@@ -53,6 +56,7 @@ impl HeroPortraitStyle {
             1 => HeroPortraitStyle::Gloat,
             2 => HeroPortraitStyle::Critical,
             3 => HeroPortraitStyle::Icon,
+            4 => HeroPortraitStyle::FullBody,
             _ => HeroPortraitStyle::Normal,
         }
     }
