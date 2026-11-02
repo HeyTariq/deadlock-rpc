@@ -37,7 +37,7 @@
 ## Features
 
 - Live hero portrait, game phase, and match mode on your Discord profile, updating as you play
-- Three portrait styles: normal, gloat, and critical
+- Five portrait styles: normal, gloat, critical, icon, and full body
 - VAC safe, read-only, zero footprint: reads only the game log, touches nothing else
 - Single native binary, no runtime or dependencies required
 - Tray icon for quick settings, auto-launches with Deadlock, auto-exits when you close it
@@ -115,7 +115,7 @@ When a release renames or restructures config keys, the release includes a migra
 | `presence.show_hero_image` | `true` | Show the hero image and name. |
 | `presence.show_match_timer` | `true` | Show how long the current match has been running. Shown as a clock, e.g. `07:42` (`1:07:42` past an hour). Added to the in-match status line, or placed with `{timer}` if `presence.status.in_match` uses that variable. |
 | `presence.show_statlocker_button` | `false` | Show a "View on Statlocker" button linking to your match history. Only visible to other Discord users, not yourself. |
-| `presence.hero_portrait_style` | `"normal"` | Hero portrait art style. Options: `"normal"`, `"gloat"` (celebration crop), `"critical"` (combat crop). |
+| `presence.hero_portrait_style` | `"normal"` | Hero portrait art style. Options: `"normal"`, `"gloat"` (celebration crop), `"critical"` (combat crop), `"icon"` (small hero icon), `"fullbody"` (Discord app asset named after the hero key, e.g. `hero_inferno`). |
 | `presence.details_with_hero` | `"Playing as {hero}"` | Top line when a hero is known. |
 | `presence.details_without_hero` | `"{phase}"` | Top line when no hero is known. |
 

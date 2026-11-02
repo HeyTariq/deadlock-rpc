@@ -215,6 +215,22 @@ mod linux {
                                         ..Default::default()
                                     }
                                     .into(),
+                                    CheckmarkItem {
+                                        label: "Full Body".to_string(),
+                                        checked: style == HeroPortraitStyle::FullBody,
+                                        activate: Box::new(|tray: &mut Self| {
+                                            tray.shared.hero_portrait_style.store(
+                                                crate::config::HeroPortraitStyle::FullBody.as_u8(),
+                                                Ordering::Relaxed,
+                                            );
+                                            crate::config::set_config_string(
+                                                "presence", "hero_portrait_style", "fullbody",
+                                            );
+                                            tray.shared.settings_dirty.store(true, Ordering::Relaxed);
+                                        }),
+                                        ..Default::default()
+                                    }
+                                    .into(),
                                 ]
                             },
                             ..Default::default()
@@ -404,6 +420,12 @@ mod windows {
             current_style == HeroPortraitStyle::Icon,
             None,
         );
+        let portrait_fullbody_item = CheckMenuItem::new(
+            "Full Body",
+            true,
+            current_style == HeroPortraitStyle::FullBody,
+            None,
+        );
 
         let portrait_menu = Submenu::new("Hero Portrait Style", true);
         portrait_menu
@@ -412,6 +434,7 @@ mod windows {
                 &portrait_gloat_item,
                 &portrait_critical_item,
                 &portrait_icon_item,
+                &portrait_fullbody_item,
             ])
             .unwrap();
 
@@ -449,6 +472,7 @@ mod windows {
         let portrait_gloat_id = portrait_gloat_item.id().clone();
         let portrait_critical_id = portrait_critical_item.id().clone();
         let portrait_icon_id = portrait_icon_item.id().clone();
+        let portrait_fullbody_id = portrait_fullbody_item.id().clone();
         let open_config_id = open_config_item.id().clone();
         let open_log_id = open_log_item.id().clone();
         let check_updates_id = check_updates_item.id().clone();
@@ -545,6 +569,7 @@ mod windows {
                         portrait_gloat_item.set_checked(false);
                         portrait_critical_item.set_checked(false);
                         portrait_icon_item.set_checked(false);
+                        portrait_fullbody_item.set_checked(false);
                         crate::config::set_config_string("presence", "hero_portrait_style", "normal");
                         shared.settings_dirty.store(true, Ordering::Relaxed);
                     } else if event.id == portrait_gloat_id {
@@ -553,6 +578,7 @@ mod windows {
                         portrait_gloat_item.set_checked(true);
                         portrait_critical_item.set_checked(false);
                         portrait_icon_item.set_checked(false);
+                        portrait_fullbody_item.set_checked(false);
                         crate::config::set_config_string("presence", "hero_portrait_style", "gloat");
                         shared.settings_dirty.store(true, Ordering::Relaxed);
                     } else if event.id == portrait_critical_id {
@@ -561,6 +587,7 @@ mod windows {
                         portrait_gloat_item.set_checked(false);
                         portrait_critical_item.set_checked(true);
                         portrait_icon_item.set_checked(false);
+                        portrait_fullbody_item.set_checked(false);
                         crate::config::set_config_string("presence", "hero_portrait_style", "critical");
                         shared.settings_dirty.store(true, Ordering::Relaxed);
                     } else if event.id == portrait_icon_id {
@@ -569,7 +596,17 @@ mod windows {
                         portrait_gloat_item.set_checked(false);
                         portrait_critical_item.set_checked(false);
                         portrait_icon_item.set_checked(true);
+                        portrait_fullbody_item.set_checked(false);
                         crate::config::set_config_string("presence", "hero_portrait_style", "icon");
+                        shared.settings_dirty.store(true, Ordering::Relaxed);
+                    } else if event.id == portrait_fullbody_id {
+                        shared.hero_portrait_style.store(HeroPortraitStyle::FullBody.as_u8(), Ordering::Relaxed);
+                        portrait_normal_item.set_checked(false);
+                        portrait_gloat_item.set_checked(false);
+                        portrait_critical_item.set_checked(false);
+                        portrait_icon_item.set_checked(false);
+                        portrait_fullbody_item.set_checked(true);
+                        crate::config::set_config_string("presence", "hero_portrait_style", "fullbody");
                         shared.settings_dirty.store(true, Ordering::Relaxed);
                     }
                 }

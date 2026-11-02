@@ -21,7 +21,7 @@ show_hero_image = true
 show_match_timer = true
 # Show a Statlocker button when your Steam ID is detected in the game log.
 show_statlocker_button = false
-# Hero portrait style to display. Options: "normal", "gloat", "critical", "icon".
+# Hero portrait style to display. Options: "normal", "gloat", "critical", "icon", "fullbody".
 hero_portrait_style = "normal"
 # Rich presence detail line when a hero is selected. Supports {hero}.
 details_with_hero = "Playing as {hero}"

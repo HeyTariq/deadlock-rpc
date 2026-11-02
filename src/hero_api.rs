@@ -104,6 +104,10 @@ fn fetch(client: &ureq::Agent, hero_key: &str, portrait_style: HeroPortraitStyle
             }
             icon.or(images.icon_hero_card).unwrap_or_default()
         }
+        HeroPortraitStyle::FullBody => {
+            debug!("[api] {hero_key}: using full body portrait (Discord asset key)");
+            hero_key.to_string()
+        }
     };
     Ok(HeroData {
         name: hero.name.unwrap_or_else(|| hero_key.trim_start_matches("hero_").to_string()),
