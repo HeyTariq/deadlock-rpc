@@ -146,7 +146,7 @@ When a release renames or restructures config keys, the release includes a migra
 | Key | Default | Description |
 |-----|---------|-------------|
 | `images.fallback_large_image` | `"deadlock_logo"` | Large image asset when no hero is shown. |
-| `images.fallback_large_image_tooltip` | `"Deadlock"` | Tooltip for the large image. |
+| `images.fallback_large_image_tooltip` | `"Deadlock RPC"` | Tooltip for the large image. |
 | `images.corner_image` | `"deadlock_logo"` | Small corner overlay image asset. |
 | `images.corner_image_tooltip` | `"Deadlock"` | Tooltip for the small corner image. |
 

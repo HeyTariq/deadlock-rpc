@@ -22,7 +22,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
-const DISCORD_APP_ID: &str = "1474302474474094634";
+const DISCORD_APP_ID: &str = "1566683259763429509";
 
 // Floor for how often the ticking match timer alone may trigger a presence push, so a low
 // discord_update_interval_s cannot turn the clock into one Discord update per second.
@@ -89,11 +89,16 @@ fn build_activity<'a>(
         .map(|d| d.name.as_str())
         .unwrap_or(img_cfg.fallback_large_image_tooltip.as_str());
 
-    let assets = activity::Assets::new()
+    let mut assets = activity::Assets::new()
         .large_image(large_image)
-        .large_text(large_text)
-        .small_image(img_cfg.corner_image.as_str())
-        .small_text(img_cfg.corner_image_tooltip.as_str());
+        .large_text(large_text);
+
+    // Skip the corner image when it would just repeat the large image (e.g. the logo fallback).
+    if large_image != img_cfg.corner_image {
+        assets = assets
+            .small_image(img_cfg.corner_image.as_str())
+            .small_text(img_cfg.corner_image_tooltip.as_str());
+    }
 
     let mut act = activity::Activity::new()
         .details(details)
