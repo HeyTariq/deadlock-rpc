@@ -12,7 +12,7 @@ game_folder = ""
 # Set to true after the user declines the shortcut install prompt. Managed automatically.
 declined_shortcut = false
 # Managed automatically — do not edit.
-config_version = 2
+config_version = 3
 
 [presence]
 show_hero_image = true
@@ -45,6 +45,6 @@ spectating = "Spectating a Match"
 # Asset key names registered in your Discord application's Art Assets.
 [images]
 fallback_large_image = "deadlock_logo"
-fallback_large_image_tooltip = "Deadlock"
+fallback_large_image_tooltip = "Deadlock RPC"
 corner_image = "deadlock_logo"
 corner_image_tooltip = "Deadlock RPC"

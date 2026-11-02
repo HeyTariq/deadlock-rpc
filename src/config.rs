@@ -146,7 +146,7 @@ impl Default for ImagesConfig {
     fn default() -> Self {
         Self {
             fallback_large_image: "deadlock_logo".to_string(),
-            fallback_large_image_tooltip: "Deadlock".to_string(),
+            fallback_large_image_tooltip: "Deadlock RPC".to_string(),
             corner_image: "deadlock_logo".to_string(),
             corner_image_tooltip: "Deadlock RPC".to_string(),
         }
@@ -239,7 +239,7 @@ pub fn config_path() -> PathBuf {
 }
 
 // Increment this when a migration is added that fixes existing key values.
-const CURRENT_CONFIG_VERSION: i64 = 2;
+const CURRENT_CONFIG_VERSION: i64 = 3;
 
 // Recursively fills missing keys in `user` from `defaults`.
 // Returns true if any key was added.
@@ -369,6 +369,25 @@ fn update_config_file(path: &std::path::Path, text: &str) -> bool {
                 "config_version".to_string(),
                 toml::Value::Integer(CURRENT_CONFIG_VERSION),
             );
+            changed = true;
+        }
+    }
+
+    // Migration v3: the fallback logo tooltip now reads "Deadlock RPC". Only the untouched
+    // default is updated so custom tooltips are kept.
+    if version < 3 {
+        if let Some(toml::Value::String(s)) = val
+            .get_mut("images")
+            .and_then(|i| i.get_mut("fallback_large_image_tooltip"))
+        {
+            if s == "Deadlock" {
+                *s = "Deadlock RPC".to_string();
+                log::info!("[config] Migration v3: set fallback_large_image_tooltip to \"Deadlock RPC\"");
+                changed = true;
+            }
+        }
+        if let Some(toml::Value::Table(general)) = val.get_mut("general") {
+            general.insert("config_version".to_string(), toml::Value::Integer(3));
             changed = true;
         }
     }
