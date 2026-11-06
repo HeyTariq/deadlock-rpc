@@ -1,47 +1,33 @@
 /*
  * Interactive Discord Rich Presence sandbox.
  *
- * This is a faithful port of the presence logic in the Rust source. Each branch
- * below cites the file and function it mirrors; if the Rust changes, change this
- * to match.
+ * This is a port of the presence logic in the Rust source. Each branch below
+ * cites the file and function it mirrors; if the Rust changes, change this to
+ * match.
  *
- *   src/main.rs::build_activity      - assembles the Discord activity payload
- *   src/main.rs::run_rpc_loop        - decides details/state/party per phase
- *   src/game_state.rs::presence_status - the per-phase status string
- *   src/config.rs::apply_vars        - the {token} substitution
+ *   src/main.rs::build_activity          - assembles the Discord activity payload
+ *   src/main.rs::run_rpc_loop            - decides details/state/party per phase
+ *   src/game_state.rs::presence_status   - the per-phase status string
+ *   src/game_state.rs::format_match_elapsed - the match clock
+ *   src/hero_api.rs::fetch               - picks the portrait for each style
+ *   src/config.rs::apply_vars            - the {token} substitution
+ *
+ * Hero data and art come live from the same places the app uses, so new heroes
+ * and art show up here without a site change.
  */
 (function () {
   'use strict';
 
-  var CDN = 'https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/';
-  var FALLBACK_ART = '../assets/icon.png';
+  var DISCORD_APP_ID = '1566683259763429509';
+  var HEROES_URL = 'https://api.deadlock-api.com/v1/assets/heroes';
+  var ASSETS_URL = 'https://discord.com/api/v9/oauth2/applications/' + DISCORD_APP_ID + '/assets';
+  var LOCAL_ICON = '../assets/icon.png';
+  var DEFAULT_HERO = 'hero_inferno';
 
-  /* Hero roster. Values come from the same API the app uses:
-   *   api.deadlock-api.com/v1/assets/heroes  -> class_name, display name
-   *   assets.deadlock-api.com/v2/heroes/by-name/<name> -> images, hideout text
-   *
-   * The image base is NOT derivable from the class name (hero_ghost -> spectre,
-   * hero_atlas -> bull), so it is recorded per hero.
-   *
-   * [ class_name, display name, image base, hideout_rich_presence ]
-   */
-  var HEROES = [
-    ['hero_hornet',   'Vindicta',   'hornet',   'Brooding in the Hideout'],
-    ['hero_inferno',  'Infernus',   'inferno',  'Mixing Drinks in the Hideout'],
-    ['hero_atlas',    'Abrams',     'bull',     'Investigating the Hideout'],
-    ['hero_haze',     'Haze',       'haze',     'Sleep Walking in the Hideout'],
-    ['hero_gigawatt', 'Seven',      'gigawatt', 'Plotting in the Hideout'],
-    ['hero_ghost',    'Lady Geist', 'spectre',  'Being Fabulous in the Hideout'],
-    ['hero_bebop',    'Bebop',      'bebop',    'Ignoring Lash in the Hideout'],
-    ['hero_lash',     'Lash',       'lash',     'Thinking About Lash in the Hideout'],
-    ['hero_chrono',   'Paradox',    'chrono',   'Scheming in the Hideout'],
-    ['hero_tengu',    'Ivy',        'tengu',    'Wishing the Arroyos were in the Hideout'],
-    ['hero_kelvin',   'Kelvin',     'kelvin',   'Chilling in the Hideout'],
-    // Mo & Krill has no hideout_rich_presence, so the in_hideout template is used.
-    ['hero_krill',    'Mo & Krill', 'digger',   '']
-  ];
+  // src/main.rs:29 - floor for how often the ticking clock alone pushes an update.
+  var TIMER_REFRESH_SECS = 5;
 
-  // GamePhase - src/game_state.rs:33
+  // GamePhase - src/game_state.rs:34
   // [ key, description(), shows_hero(), control label ]
   var PHASES = [
     ['NotRunning', 'Not Running',         false, 'Game closed'],
@@ -54,7 +40,7 @@
     ['Spectating', 'Spectating',          false, 'Spectating']
   ];
 
-  // MatchMode - src/game_state.rs:4
+  // MatchMode - src/game_state.rs:5
   // [ key, display(), show_map_location() ]
   var MODES = [
     ['Unknown',       'In Match',       true],
@@ -66,9 +52,19 @@
     ['HeroLabs',      'Hero Labs',      false]
   ];
 
+  // HeroPortraitStyle - src/config.rs:29
+  var STYLES = [
+    { value: 'normal',   label: 'Normal' },
+    { value: 'gloat',    label: 'Gloat' },
+    { value: 'critical', label: 'Critical' },
+    { value: 'icon',     label: 'Icon' },
+    { value: 'fullbody', label: 'Full body' }
+  ];
+
   // Defaults mirror src/default_config.toml exactly.
   var DEFAULTS = {
     show_hero_image: true,
+    show_match_timer: true,
     show_statlocker_button: false,
     hero_portrait_style: 'normal',
     details_with_hero: 'Playing as {hero}',
@@ -82,7 +78,7 @@
     match_location_label: 'the Cursed Apple',
     post_match: 'Reviewing Match Results',
     spectating: 'Spectating a Match',
-    fallback_large_image_tooltip: 'Deadlock',
+    fallback_large_image_tooltip: 'Deadlock RPC',
     corner_image_tooltip: 'Deadlock RPC'
   };
 
@@ -92,7 +88,7 @@
     details_without_hero: ['phase'],
     in_hideout: ['hero'],
     loading_into_match: ['mode'],
-    in_match: ['mode', 'location']
+    in_match: ['mode', 'location', 'timer']
   };
 
   // Order and labels for the editable text fields.
@@ -114,12 +110,21 @@
 
   // ---- state -------------------------------------------------------------
 
+  // Filled from the hero API: { key, name, hideout, images }.
+  var heroes = [];
+  // 'loading' | 'ok' | 'failed'
+  var heroLoad = 'loading';
+  // Discord app art assets, name -> CDN url.
+  var assets = {};
+
   var cfg = {};
   var phaseKey = 'InMatch';
   var modeKey = 'Standard';
   var heroIdx = 0;
   var partySize = 1;
   var startedAt = Date.now();
+  var matchStartedAt = Date.now();
+  var lastTimerBucket = 0;
   var simTimer = null;
   var tickTimer = null;
 
@@ -143,17 +148,49 @@
     return MODES[0];
   }
 
-  function heroArt() {
-    var base = HEROES[heroIdx][2];
-    var suffix = cfg.hero_portrait_style === 'gloat' ? '_card_gloat'
-               : cfg.hero_portrait_style === 'critical' ? '_card_critical'
-               : '_card';
-    return CDN + base + suffix + '.webp';
+  function defaultHeroIdx() {
+    for (var i = 0; i < heroes.length; i++) {
+      if (heroes[i].key === DEFAULT_HERO) return i;
+    }
+    return 0;
   }
+
+  // src/game_state.rs:215-231 - the clock starts on entering InMatch and is
+  // cleared on leaving it.
+  function setPhase(next) {
+    if (next === 'InMatch' && phaseKey !== 'InMatch') {
+      matchStartedAt = Date.now();
+      lastTimerBucket = 0;
+    }
+    phaseKey = next;
+  }
+
+  // The deadlock_logo asset on the Discord app, or the local copy of it.
+  function logoArt() {
+    return assets.deadlock_logo || LOCAL_ICON;
+  }
+
+  // src/hero_api.rs:75-111 - the image sent for each portrait style. Returns
+  // { key, url }: key is what the app sends to Discord, url is how it looks.
+  function heroArt(hero) {
+    var im = hero.images;
+    var pick = function (preferred) { return preferred || im.icon_hero_card || ''; };
+    switch (cfg.hero_portrait_style) {
+      case 'gloat':    return urlArt(pick(im.hero_card_gloat));
+      case 'critical': return urlArt(pick(im.hero_card_critical));
+      case 'icon':     return urlArt(pick(im.icon_image_small));
+      case 'fullbody':
+        // Sent as a Discord asset key named after the hero, never as a URL.
+        return { key: hero.key, url: assets[hero.key] || '' };
+    }
+    return urlArt(im.icon_hero_card || '');
+  }
+
+  function urlArt(url) { return { key: url, url: url }; }
 
   // ---- the port ----------------------------------------------------------
 
-  // src/config.rs:210 - plain {key} replacement, no escaping.
+  // src/config.rs:226 - plain {key} replacement, no escaping.
   function applyVars(template, vars) {
     var out = template;
     for (var key in vars) {
@@ -164,23 +201,47 @@
     return out;
   }
 
-  // src/game_state.rs:188 - presence_status()
-  function gameStatus(hero) {
+  // src/game_state.rs:71 - "07:42", or "1:07:42" past an hour.
+  function formatMatchElapsed(sec) {
+    var h = Math.floor(sec / 3600);
+    var m = Math.floor((sec % 3600) / 60);
+    var s = sec % 60;
+    var pad = function (n) { return n < 10 ? '0' + n : String(n); };
+    if (h > 0) return h + ':' + pad(m) + ':' + pad(s);
+    return pad(m) + ':' + pad(s);
+  }
+
+  // src/main.rs:161-166 - only during a match, and only with the timer on.
+  // The clock reads as of the last push, which happens once per bucket.
+  function matchTimer() {
+    if (!cfg.show_match_timer || phaseKey !== 'InMatch') return null;
+    return formatMatchElapsed(lastTimerBucket * TIMER_REFRESH_SECS);
+  }
+
+  // src/game_state.rs:252 - presence_status()
+  function gameStatus(hero, timer) {
     var m = mode();
     switch (phaseKey) {
       case 'NotRunning': return cfg.game_not_running;
       case 'MainMenu':   return cfg.in_main_menu;
       case 'Hideout':
         // The hero's own API text wins when present.
-        if (hero && hero[3]) return hero[3];
-        return applyVars(cfg.in_hideout, { hero: hero ? hero[1] : '' });
+        if (hero && hero.hideout) return hero.hideout;
+        return applyVars(cfg.in_hideout, { hero: hero ? hero.name : '' });
       case 'InQueue':    return cfg.in_matchmaking;
       case 'MatchIntro': return applyVars(cfg.loading_into_match, { mode: m[1] });
-      case 'InMatch':
+      case 'InMatch': {
         // For modes without a map location the whole template is discarded and
-        // the bare mode name is used. src/game_state.rs:208-217
-        if (!m[2]) return m[1];
-        return applyVars(cfg.in_match, { mode: m[1], location: cfg.match_location_label });
+        // the bare mode name is used. src/game_state.rs:274-288
+        var usesTemplate = m[2];
+        var status = usesTemplate
+          ? applyVars(cfg.in_match, { mode: m[1], location: cfg.match_location_label, timer: timer || '' })
+          : m[1];
+        // Templates without {timer} still get it, appended. src/game_state.rs:289-293
+        var placed = usesTemplate && cfg.in_match.indexOf('{timer}') !== -1;
+        if (timer && !placed) status = status + ' - ' + timer;
+        return status;
+      }
       case 'PostMatch':  return cfg.post_match;
       case 'Spectating': return cfg.spectating;
     }
@@ -191,21 +252,22 @@
   function buildActivity() {
     var ph = phase();
 
-    // src/main.rs:184-189 - show_hero_image gates the hero entirely, so with it
-    // off the name disappears along with the portrait.
-    var hero = (cfg.show_hero_image && ph[2]) ? HEROES[heroIdx] : null;
+    // src/main.rs:209-215 - show_hero_image gates the hero entirely, so with it
+    // off the name disappears along with the portrait. A failed hero fetch
+    // has the same effect.
+    var hero = (cfg.show_hero_image && ph[2] && heroes.length) ? heroes[heroIdx] : null;
 
-    var status = gameStatus(hero);
+    var status = gameStatus(hero, matchTimer());
 
-    // src/main.rs:202-208
+    // src/main.rs:228-234
     var heroLabel = hero
-      ? applyVars(cfg.details_with_hero, { hero: hero[1] })
+      ? applyVars(cfg.details_with_hero, { hero: hero.name })
       : applyVars(cfg.details_without_hero, { phase: ph[1] });
 
-    // src/main.rs:211 - party is only ever surfaced in the Hideout.
+    // src/main.rs:237 - party is only ever surfaced in the Hideout.
     var showParty = (phaseKey === 'Hideout' && partySize > 1);
 
-    // src/main.rs:216-223
+    // src/main.rs:242-249
     var details, state;
     if (phaseKey === 'Hideout') {
       details = status;
@@ -218,19 +280,65 @@
       state = status;
     }
 
+    // src/main.rs:83-86 - hero art, else the deadlock_logo fallback key.
+    var art = hero ? heroArt(hero) : null;
+    var logoFallback = !art || !art.key;
+
     return {
       details: details,
       state: state,
-      // src/main.rs:69-76 - hero art else the configured fallback key.
-      largeImage: hero ? heroArt() : FALLBACK_ART,
-      largeText: hero ? hero[1] : cfg.fallback_large_image_tooltip,
-      // src/main.rs:81-82 - the corner icon is always set.
-      smallImage: FALLBACK_ART,
+      largeImage: logoFallback ? logoArt() : (art.url || logoArt()),
+      largeText: hero ? hero.name : cfg.fallback_large_image_tooltip,
+      // src/main.rs:96-101 - no corner icon when it would repeat the logo.
+      showSmall: !logoFallback,
       smallText: cfg.corner_image_tooltip,
-      // src/main.rs:97 - party max is hardcoded to 6.
+      // src/main.rs:116 - party max is hardcoded to 6.
       party: showParty ? partySize + ' of 6' : null,
-      button: cfg.show_statlocker_button
+      button: cfg.show_statlocker_button,
+      missingFullBody: !!(art && art.key && !art.url)
     };
+  }
+
+  // ---- data --------------------------------------------------------------
+
+  function getJson(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
+  }
+
+  function loadData() {
+    getJson(ASSETS_URL).then(function (list) {
+      list.forEach(function (a) {
+        assets[a.name] = 'https://cdn.discordapp.com/app-assets/' + DISCORD_APP_ID + '/' + a.id + '.png';
+      });
+      el.small.src = logoArt();
+      render();
+    }).catch(function () { /* the local icon stands in for the logo */ });
+
+    getJson(HEROES_URL).then(function (list) {
+      heroes = list
+        .filter(function (h) { return h.player_selectable && !h.disabled && h.class_name && h.name; })
+        .map(function (h) {
+          return {
+            key: h.class_name,
+            name: h.name,
+            hideout: h.hideout_rich_presence || '',
+            images: h.images || {}
+          };
+        })
+        .sort(function (a, b) { return a.name.localeCompare(b.name); });
+      if (!heroes.length) throw new Error('no heroes');
+      heroLoad = 'ok';
+      heroIdx = defaultHeroIdx();
+      fillHeroSelect();
+      render();
+    }).catch(function () {
+      heroLoad = 'failed';
+      fillHeroSelect();
+      render();
+    });
   }
 
   // ---- rendering ---------------------------------------------------------
@@ -257,12 +365,16 @@
     }
     el.large.alt = a.largeText;
     el.large.title = a.largeText;
+    el.small.hidden = !a.showSmall;
     el.small.alt = a.smallText;
     el.small.title = a.smallText;
 
     el.button.hidden = !a.button;
+    return a;
   }
 
+  // src/main.rs:149-153 captures this once at startup, so the card's elapsed
+  // line measures how long the app has been running, not the current match.
   function fmtElapsed(sec) {
     var h = Math.floor(sec / 3600);
     var m = Math.floor((sec % 3600) / 60);
@@ -272,26 +384,42 @@
     return m + ':' + pad(s) + ' elapsed';
   }
 
-  function renderElapsed() {
+  function tick() {
     el.time.textContent = fmtElapsed(Math.floor((Date.now() - startedAt) / 1000));
+    if (phaseKey === 'InMatch') {
+      var bucket = Math.floor((Date.now() - matchStartedAt) / 1000 / TIMER_REFRESH_SECS);
+      if (bucket !== lastTimerBucket) {
+        lastTimerBucket = bucket;
+        renderCard();
+      }
+    }
   }
 
   // One context-sensitive line, so the sandbox can explain itself without
   // cluttering every control with helper text.
-  function renderHint() {
+  function renderHint(a) {
     var ph = phase();
+    var hero = heroes[heroIdx];
     var msg = '';
 
-    if (!cfg.show_hero_image && ph[2]) {
-      msg = 'With the portrait off, your hero’s name is hidden too — the details line falls back to details_without_hero.';
+    if (heroLoad === 'failed') {
+      msg = 'Couldn’t reach the hero API, so the card shows the logo instead of your hero.';
+    } else if (heroLoad === 'loading' && ph[2] && cfg.show_hero_image) {
+      msg = 'Loading heroes…';
+    } else if (!cfg.show_hero_image && ph[2]) {
+      msg = 'With the portrait off, your hero’s name is hidden too. The details line falls back to details_without_hero.';
     } else if (!ph[2] && phaseKey !== 'NotRunning') {
       msg = 'Deadlock RPC doesn’t show your hero during this phase.';
+    } else if (a.missingFullBody) {
+      msg = hero.name + ' has no full body art in the Discord app yet, so the logo stands in here.';
     } else if (partySize > 1 && phaseKey !== 'Hideout') {
       msg = 'Party size only appears while you’re in the Hideout.';
-    } else if (phaseKey === 'Hideout' && !HEROES[heroIdx][3]) {
-      msg = HEROES[heroIdx][1] + ' has no custom Hideout line, so your in_hideout text is used instead.';
+    } else if (phaseKey === 'Hideout' && hero && !hero.hideout) {
+      msg = hero.name + ' has no custom Hideout line, so your in_hideout text is used instead.';
     } else if (phaseKey === 'InMatch' && !mode()[2]) {
-      msg = 'For this mode the name is shown on its own — the in_match template isn’t used.';
+      msg = 'For this mode the name is shown on its own, and the in_match template isn’t used.';
+    } else if (phaseKey === 'InMatch' && cfg.show_match_timer) {
+      msg = 'The match clock moves in ' + TIMER_REFRESH_SECS + ' second steps, as often as the app updates Discord.';
     } else if (cfg.show_statlocker_button) {
       msg = 'In the real app this button appears once your Steam ID is detected in the game log.';
     }
@@ -311,6 +439,7 @@
       '',
       '[presence]',
       'show_hero_image = ' + cfg.show_hero_image,
+      'show_match_timer = ' + cfg.show_match_timer,
       'show_statlocker_button = ' + cfg.show_statlocker_button,
       'hero_portrait_style = ' + q(cfg.hero_portrait_style),
       'details_with_hero = ' + q(cfg.details_with_hero),
@@ -337,8 +466,7 @@
   }
 
   function render() {
-    renderCard();
-    renderHint();
+    renderHint(renderCard());
     renderToml();
   }
 
@@ -390,6 +518,26 @@
     });
   }
 
+  function fillHeroSelect() {
+    var sel = el.heroSel;
+    sel.innerHTML = '';
+    if (heroLoad !== 'ok') {
+      var o = document.createElement('option');
+      o.textContent = heroLoad === 'loading' ? 'Loading heroes…' : 'Heroes unavailable';
+      sel.appendChild(o);
+      sel.disabled = true;
+      return;
+    }
+    heroes.forEach(function (h, i) {
+      var opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = h.name;
+      sel.appendChild(opt);
+    });
+    sel.disabled = false;
+    sel.value = String(heroIdx);
+  }
+
   function stopSim() {
     if (simTimer) {
       clearTimeout(simTimer);
@@ -398,14 +546,22 @@
     }
   }
 
-  var SIM_SEQUENCE = ['MainMenu', 'Hideout', 'InQueue', 'MatchIntro', 'InMatch', 'PostMatch'];
+  // [ phase, ms to hold it ]. The match runs long enough for the clock to move.
+  var SIM_SEQUENCE = [
+    ['MainMenu', 2500], ['Hideout', 2500], ['InQueue', 2500],
+    ['MatchIntro', 2500], ['InMatch', 11000], ['PostMatch', 2500]
+  ];
+
+  function syncPhaseSeg() {
+    syncSegmented(el.phaseSeg, function () { return phaseKey; });
+  }
 
   function runSim(i) {
     if (i >= SIM_SEQUENCE.length) { stopSim(); return; }
-    phaseKey = SIM_SEQUENCE[i];
-    syncSegmented(el.phaseSeg, function () { return phaseKey; });
+    setPhase(SIM_SEQUENCE[i][0]);
+    syncPhaseSeg();
     render();
-    simTimer = setTimeout(function () { runSim(i + 1); }, 2500);
+    simTimer = setTimeout(function () { runSim(i + 1); }, SIM_SEQUENCE[i][1]);
   }
 
   function insertToken(input, token) {
@@ -477,6 +633,17 @@
     });
   }
 
+  function bindCheckbox(id, key) {
+    var box = $(id);
+    box.checked = cfg[key];
+    box.addEventListener('change', function () {
+      cfg[key] = box.checked;
+      stopSim();
+      render();
+    });
+    return box;
+  }
+
   // ---- init --------------------------------------------------------------
 
   function init() {
@@ -490,23 +657,29 @@
     el.toml = $('d-toml');
     el.textFields = $('d-text-fields');
     el.phaseSeg = $('d-phase');
+    el.heroSel = $('d-hero');
     el.sim = $('d-sim');
 
     if (!el.details) return;
 
-    // A CDN hiccup degrades to the app icon, which is the same fallback the
-    // real app uses when it has no hero art.
+    // A CDN hiccup degrades to the logo, the same fallback the real app uses
+    // when it has no hero art.
     el.large.addEventListener('error', function () {
-      if (el.large.src.indexOf('icon.png') === -1) el.large.src = FALLBACK_ART;
+      var src = el.large.getAttribute('src');
+      if (src !== logoArt() && src !== LOCAL_ICON) el.large.src = logoArt();
+      else if (src !== LOCAL_ICON) el.large.src = LOCAL_ICON;
     });
-    el.small.src = FALLBACK_ART;
+    el.small.addEventListener('error', function () {
+      if (el.small.getAttribute('src') !== LOCAL_ICON) el.small.src = LOCAL_ICON;
+    });
+    el.small.src = logoArt();
 
     // Game state
     buildSegmented(
       el.phaseSeg,
       PHASES.map(function (p) { return { value: p[0], label: p[3] }; }),
       function () { return phaseKey; },
-      function (v) { phaseKey = v; stopSim(); render(); }
+      function (v) { setPhase(v); stopSim(); render(); }
     );
     wireSegmentedKeys(el.phaseSeg);
 
@@ -514,25 +687,16 @@
     var styleSeg = $('d-style');
     buildSegmented(
       styleSeg,
-      [{ value: 'normal', label: 'Normal' },
-       { value: 'gloat', label: 'Gloat' },
-       { value: 'critical', label: 'Critical' }],
+      STYLES,
       function () { return cfg.hero_portrait_style; },
       function (v) { cfg.hero_portrait_style = v; stopSim(); render(); }
     );
     wireSegmentedKeys(styleSeg);
 
     // Hero
-    var heroSel = $('d-hero');
-    HEROES.forEach(function (h, i) {
-      var o = document.createElement('option');
-      o.value = String(i);
-      o.textContent = h[1];
-      heroSel.appendChild(o);
-    });
-    heroSel.value = String(heroIdx);
-    heroSel.addEventListener('change', function () {
-      heroIdx = parseInt(heroSel.value, 10);
+    fillHeroSelect();
+    el.heroSel.addEventListener('change', function () {
+      heroIdx = parseInt(el.heroSel.value, 10);
       stopSim();
       render();
     });
@@ -563,21 +727,9 @@
     });
 
     // Toggles
-    var heroImg = $('d-heroimg');
-    heroImg.checked = cfg.show_hero_image;
-    heroImg.addEventListener('change', function () {
-      cfg.show_hero_image = heroImg.checked;
-      stopSim();
-      render();
-    });
-
-    var statlocker = $('d-statlocker');
-    statlocker.checked = cfg.show_statlocker_button;
-    statlocker.addEventListener('change', function () {
-      cfg.show_statlocker_button = statlocker.checked;
-      stopSim();
-      render();
-    });
+    var heroImg = bindCheckbox('d-heroimg', 'show_hero_image');
+    var timerBox = bindCheckbox('d-timer', 'show_match_timer');
+    var statlocker = bindCheckbox('d-statlocker', 'show_statlocker_button');
 
     // Simulate / reset
     var reduced = window.matchMedia &&
@@ -587,9 +739,10 @@
       if (simTimer) { stopSim(); return; }
       if (reduced) {
         // Step manually rather than auto-advancing.
-        var i = SIM_SEQUENCE.indexOf(phaseKey);
-        phaseKey = SIM_SEQUENCE[(i + 1) % SIM_SEQUENCE.length];
-        syncSegmented(el.phaseSeg, function () { return phaseKey; });
+        var keys = SIM_SEQUENCE.map(function (s) { return s[0]; });
+        var i = keys.indexOf(phaseKey);
+        setPhase(keys[(i + 1) % keys.length]);
+        syncPhaseSeg();
         render();
         return;
       }
@@ -601,17 +754,19 @@
     $('d-reset').addEventListener('click', function () {
       stopSim();
       resetCfg();
-      phaseKey = 'InMatch';
+      phaseKey = 'MainMenu';
+      setPhase('InMatch');
       modeKey = 'Standard';
-      heroIdx = 0;
+      heroIdx = defaultHeroIdx();
       partySize = 1;
-      heroSel.value = '0';
+      if (heroLoad === 'ok') el.heroSel.value = String(heroIdx);
       modeSel.value = modeKey;
       party.value = '1';
       partyVal.textContent = '1 of 6';
       heroImg.checked = cfg.show_hero_image;
+      timerBox.checked = cfg.show_match_timer;
       statlocker.checked = cfg.show_statlocker_button;
-      syncSegmented(el.phaseSeg, function () { return phaseKey; });
+      syncPhaseSeg();
       syncSegmented(styleSeg, function () { return cfg.hero_portrait_style; });
       syncTextFields();
       render();
@@ -639,26 +794,25 @@
 
     buildTextFields();
 
-    // Elapsed timer. src/main.rs:130-134 captures this once at startup, so it
-    // measures how long the app has been running, not the current match.
-    renderElapsed();
+    tick();
     startTick();
     document.addEventListener('visibilitychange', function () {
       if (document.hidden) {
         clearInterval(tickTimer);
         tickTimer = null;
       } else {
-        renderElapsed();
+        tick();
         startTick();
       }
     });
 
     render();
+    loadData();
   }
 
   function startTick() {
     if (tickTimer) return;
-    tickTimer = setInterval(renderElapsed, 1000);
+    tickTimer = setInterval(tick, 1000);
   }
 
   function legacyCopy(text, done) {
