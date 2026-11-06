@@ -954,6 +954,8 @@ footer {
   display: block;
 }
 
+.rpc-small[hidden] { display: none; }
+
 .rpc-lines {
   min-width: 0;
   display: flex;
