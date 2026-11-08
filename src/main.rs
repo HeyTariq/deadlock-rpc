@@ -225,27 +225,29 @@ std::process::exit(0);
             gs.presence_status(hideout_text, hero_name, timer_text.as_deref(), &cfg.presence.status)
         };
 
-        let hero_label: String = match hero_name {
-            Some(name) => config::apply_vars(&cfg.presence.details_with_hero, &[("hero", name)]),
-            None => config::apply_vars(
-                &cfg.presence.details_without_hero,
-                &[("phase", phase.description())],
-            ),
-        };
-
         // Party is only shown in the Hideout.
         let show_party = phase == GamePhase::Hideout && party_size > 1;
 
         // Hideout: hideout text on top, party line on bottom (or nothing if solo).
-        // NotRunning: status text only, no second line.
-        // All other phases: hero/phase label on top, game status on bottom, no party.
+        // Queue: hideout text on top, search status on bottom.
+        // In match with a hero: "Playing as {hero}" on top, mode and timer on bottom.
+        // Everything else: the status alone on one line.
+        let top_line: String = match (phase, hero_name) {
+            (GamePhase::InQueue, _) => {
+                game_state::hideout_line(hideout_text, hero_name, &cfg.presence.status)
+            }
+            (GamePhase::InMatch, Some(name)) => {
+                config::apply_vars(&cfg.presence.details_with_hero, &[("hero", name)])
+            }
+            _ => String::new(),
+        };
         let (details, state_opt): (&str, Option<&str>) = if phase == GamePhase::Hideout {
             let s = if show_party { Some("In a Party") } else { None };
             (game_status.as_str(), s)
-        } else if phase == GamePhase::NotRunning || phase == GamePhase::Spectating {
+        } else if top_line.is_empty() {
             (game_status.as_str(), None)
         } else {
-            (hero_label.as_str(), Some(game_status.as_str()))
+            (top_line.as_str(), Some(game_status.as_str()))
         };
 
         info!(
