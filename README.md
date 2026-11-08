@@ -7,23 +7,10 @@
 
   [![Latest Release](https://img.shields.io/github/v/release/HeyTariq/deadlock-rpc?&label=release)](https://github.com/HeyTariq/deadlock-rpc/releases/latest)
   [![Downloads](https://img.shields.io/github/downloads/HeyTariq/deadlock-rpc/total?)](https://github.com/HeyTariq/deadlock-rpc/releases)
-  [![Last Commit](https://img.shields.io/github/last-commit/HeyTariq/deadlock-rpc)](https://github.com/HeyTariq/deadlock-rpc/commits/main)
   [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-blue?)](https://github.com/HeyTariq/deadlock-rpc/releases/latest)
+  [![License](https://img.shields.io/github/license/HeyTariq/deadlock-rpc)](LICENSE)
 
 </div>
-
-## Contents
-
-- [Deadlock Rich Presence for Discord](#deadlock-rich-presence-for-discord)
-  - [Contents](#contents)
-  - [Preview](#preview)
-  - [Features](#features)
-  - [Installation](#installation)
-  - [How It Works](#how-it-works)
-  - [Configuration](#configuration)
-  - [CLI Flags](#cli-flags)
-  - [Building from Source](#building-from-source)
-  - [Disclaimer](#disclaimer)
 
 ## Preview
 
@@ -36,12 +23,12 @@
 
 ## Features
 
-- Live hero portrait, game phase, and match mode on your Discord profile, updating as you play
-- Five portrait styles: normal, gloat, critical, icon, and full body
-- VAC safe, read-only, zero footprint: reads only the game log, touches nothing else
-- Single native binary, no runtime or dependencies required
-- Tray icon for quick settings, auto-launches with Deadlock, auto-exits when you close it
-- Optional Statlocker.gg button so others can view your match history from your profile
+- Shows your hero, game mode, and what you're doing (queueing, in a match, reviewing results) on your Discord profile
+- Five hero art styles to choose from
+- Safe to use: it only reads Deadlock's log file and never touches the game (VAC safe)
+- Opens with Deadlock and closes when you quit
+- Change settings from the tray icon, no restart needed
+- Optional Statlocker button so friends can check your match history
 
 ## Installation
 
@@ -61,26 +48,32 @@
 2. Extract the zip and open a terminal in that folder
 3. Run `chmod +x deadlock-rpc && ./deadlock-rpc`
 
-**After first run**
+Then pick how you want to launch the game below.
 
-From now on, launch Deadlock through the **Deadlock RPC** shortcut instead of directly. This is what activates Rich Presence. Keep the extracted folder in place, the app writes its logs there.
+## Launching Deadlock
 
-If you prefer to launch Deadlock your own way, add `-condebug` to Deadlock's launch options in Steam (right-click Deadlock in your library, Properties, Launch Options). This generates the log file the app needs to function.
+Rich Presence only works when Deadlock writes its log file, which needs the `-condebug` launch option. Pick one of these ways to launch the game. Keep the extracted folder where it is, since the app writes its logs there.
 
-You can also have Steam start Deadlock RPC every time you press Play on Deadlock. Set Deadlock's launch options to the full path of the executable followed by `--launch-with-command -- %command%`:
+### 1. Use the Deadlock RPC shortcut (recommended)
+
+On first run the app creates a **Deadlock RPC** shortcut in its folder. Move it to your desktop and use it instead of launching Deadlock directly. It starts the game for you and closes when you quit.
+
+> [!TIP]
+> You can also add `deadlock-rpc` as a non-Steam game to launch it from your Steam library. [Steam's guide](https://help.steampowered.com/en/faqs/view/4B8B-9697-2338-40EC) explains how.
+
+### 2. Press Play in Steam as usual
+
+Have Steam start Deadlock RPC every time you press Play. In Steam, right-click Deadlock, open **Properties**, and set **Launch Options** to the full path of the app followed by `--launch-with-command -- %command%`:
 
 ```sh
 /path/to/deadlock-rpc --launch-with-command -- %command%
 ```
 
-On Windows, use the path to `deadlock-rpc.exe` and wrap it in quotes if it contains spaces. The app starts the game for you with `-condebug` added, skips the shortcut prompt, and closes with the game as long as `exit_when_game_closes` is enabled.
+On Windows, use the path to `deadlock-rpc.exe` and wrap it in quotes if it contains spaces. The app adds `-condebug` for you and closes with the game while `exit_when_game_closes` is on.
 
-> [!TIP]
-> You can add the Deadlock RPC executable as a non-Steam game so you can launch it straight from your Steam library. [Steam's guide](https://help.steampowered.com/en/faqs/view/4B8B-9697-2338-40EC) explains how.
+### 3. Launch both yourself
 
-## How It Works
-
-Deadlock RPC launches the game with a flag that makes Deadlock write its console output to a log file. The app watches that file and parses it for hero selection, game phase, and match mode, then pushes the result to Discord in real time. No memory is read, no files are modified, no traffic is intercepted. VAC safe by design.
+Add `-condebug` to Deadlock's **Launch Options** in Steam, then start Deadlock and Deadlock RPC however you like. Run the app with `--no-launch` if you don't want it to start the game.
 
 ## Configuration
 
@@ -94,7 +87,7 @@ The tray icon's **Settings** menu lets you toggle the most common options withou
 | `presence.show_hero_image` | Show Hero Image |
 | `presence.show_match_timer` | Show Match Timer |
 | `presence.show_statlocker_button` | Show Statlocker Button |
-| `presence.hero_portrait_style` | Hero Portrait Style (Normal / Gloat / Critical) |
+| `presence.hero_portrait_style` | Hero Portrait Style (Normal / Gloat / Critical / Icon / Full Body) |
 
 Changes made through the tray are written to `config.toml` immediately and take effect without a restart. Select **Open Config File** in the tray menu to open the file directly in your default editor for full customization.
 
@@ -162,9 +155,9 @@ When a release renames or restructures config keys, the release includes a migra
 ### Examples
 
 ```toml
-# Minimal presence — no hero name, no timer
+# Minimal presence: no hero name, no timer
 [presence]
-show_elapsed_timer = false
+show_match_timer = false
 details_with_hero  = "Playing Deadlock"
 details_without_hero = "Playing Deadlock"
 
@@ -179,6 +172,10 @@ exit_when_game_closes = false
 ```
 
 </details>
+
+## How It Works
+
+The `-condebug` option makes Deadlock write its console output to a log file. Deadlock RPC watches that file for your hero, match mode, and game phase, then updates Discord. It doesn't read game memory, modify files, or intercept network traffic.
 
 ## CLI Flags
 
