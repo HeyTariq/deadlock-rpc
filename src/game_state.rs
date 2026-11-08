@@ -43,25 +43,24 @@ pub enum GamePhase {
 }
 
 impl GamePhase {
-    pub fn description(self) -> &'static str {
-        match self {
-            GamePhase::NotRunning => "Not Running",
-            GamePhase::MainMenu => "Main Menu",
-            GamePhase::Hideout => "Hideout",
-            GamePhase::InQueue => "Searching for Match",
-            GamePhase::MatchIntro => "Match Starting",
-            GamePhase::InMatch => "In Match",
-            GamePhase::PostMatch => "Post Match",
-            GamePhase::Spectating => "Spectating",
-        }
-    }
-
     // Whether the hero image and "Playing as" label should be shown for this phase.
     pub fn shows_hero(self) -> bool {
         !matches!(
             self,
             GamePhase::NotRunning | GamePhase::MainMenu | GamePhase::PostMatch | GamePhase::Spectating
         )
+    }
+}
+
+// The hero's hideout text from the API, or the configured hideout status when there is none.
+pub fn hideout_line(
+    hideout_text: Option<&str>,
+    hero_name: Option<&str>,
+    cfg: &crate::config::StatusStrings,
+) -> String {
+    match hideout_text.filter(|t| !t.is_empty()) {
+        Some(text) => text.to_string(),
+        None => crate::config::apply_vars(&cfg.in_hideout, &[("hero", hero_name.unwrap_or(""))]),
     }
 }
 
@@ -260,16 +259,17 @@ impl GameState {
         match self.phase {
             GamePhase::NotRunning => cfg.game_not_running.clone(),
             GamePhase::MainMenu => cfg.in_main_menu.clone(),
-            GamePhase::Hideout => {
-                if let Some(text) = hideout_text.filter(|t| !t.is_empty()) {
-                    text.to_string()
-                } else {
-                    apply_vars(&cfg.in_hideout, &[("hero", hero_name.unwrap_or(""))])
-                }
-            }
+            GamePhase::Hideout => hideout_line(hideout_text, hero_name, cfg),
             GamePhase::InQueue => cfg.in_matchmaking.clone(),
             GamePhase::MatchIntro => {
-                apply_vars(&cfg.loading_into_match, &[("mode", self.match_mode.display())])
+                if self.match_mode == MatchMode::Unknown {
+                    // Drop the mode and the separator left around it: "Loading into Match".
+                    apply_vars(&cfg.loading_into_match, &[("mode", "")])
+                        .trim_matches(|c: char| c.is_whitespace() || c == '-')
+                        .to_string()
+                } else {
+                    apply_vars(&cfg.loading_into_match, &[("mode", self.match_mode.display())])
+                }
             }
             GamePhase::InMatch => {
                 let mode = self.match_mode.display();

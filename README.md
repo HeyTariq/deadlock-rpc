@@ -117,8 +117,7 @@ When a release renames or restructures config keys, the release includes a migra
 | `presence.show_match_timer` | `true` | Show how long the current match has been running. Shown as a clock, e.g. `07:42` (`1:07:42` past an hour). Added to the in-match status line, or placed with `{timer}` if `presence.status.in_match` uses that variable. |
 | `presence.show_statlocker_button` | `false` | Show a "View on Statlocker" button linking to your match history. Only visible to other Discord users, not yourself. |
 | `presence.hero_portrait_style` | `"normal"` | Hero portrait art style. Options: `"normal"`, `"gloat"` (celebration crop), `"critical"` (combat crop), `"icon"` (small hero icon), `"fullbody"` (Discord app asset named after the hero key, e.g. `hero_inferno`). |
-| `presence.details_with_hero` | `"Playing as {hero}"` | Top line when a hero is known. |
-| `presence.details_without_hero` | `"{phase}"` | Top line when no hero is known. |
+| `presence.details_with_hero` | `"Playing as {hero}"` | Top line during a match when a hero is known. |
 
 ### Per-phase status strings
 
@@ -129,7 +128,7 @@ When a release renames or restructures config keys, the release includes a migra
 | `presence.status.in_hideout` | `"In the Hideout"` |
 | `presence.status.in_matchmaking` | `"Searching for a Match..."` |
 | `presence.status.loading_into_match` | `"{mode} - Loading into Match"` |
-| `presence.status.in_match` | `"In Match: {mode}"` (also supports `{timer}`) |
+| `presence.status.in_match` | `"{mode}"` (also supports `{timer}`) |
 | `presence.status.match_location_label` | `"the Cursed Apple"` |
 | `presence.status.post_match` | `"Reviewing Match Results"` |
 | `presence.status.spectating` | `"Spectating a Match"` |
@@ -148,7 +147,6 @@ When a release renames or restructures config keys, the release includes a migra
 | Variable | Available in | Value |
 |----------|-------------|-------|
 | `{hero}` | `details_with_hero`, `in_hideout` | Hero display name, e.g. `Vindicta` |
-| `{phase}` | `details_without_hero` | Phase label, e.g. `Post Match` |
 | `{mode}` | `loading_into_match`, `in_match` | Match mode, e.g. `Standard Match` |
 | `{location}` | `in_match` | Value of `match_location_label` |
 
@@ -158,8 +156,7 @@ When a release renames or restructures config keys, the release includes a migra
 # Minimal presence: no hero name, no timer
 [presence]
 show_match_timer = false
-details_with_hero  = "Playing Deadlock"
-details_without_hero = "Playing Deadlock"
+details_with_hero = "Playing Deadlock"
 
 # Custom in-match status
 [presence.status]

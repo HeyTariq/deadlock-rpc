@@ -71,7 +71,6 @@ pub struct PresenceConfig {
     pub show_statlocker_button: bool,
     pub hero_portrait_style: HeroPortraitStyle,
     pub details_with_hero: String,
-    pub details_without_hero: String,
     pub status: StatusStrings,
 }
 
@@ -120,7 +119,6 @@ impl Default for PresenceConfig {
             show_statlocker_button: false,
             hero_portrait_style: HeroPortraitStyle::Normal,
             details_with_hero: "Playing as {hero}".to_string(),
-            details_without_hero: "{phase}".to_string(),
             status: StatusStrings::default(),
         }
     }
@@ -134,7 +132,7 @@ impl Default for StatusStrings {
             in_hideout: "In the Hideout".to_string(),
             in_matchmaking: "Searching for a Match...".to_string(),
             loading_into_match: "{mode} - Loading into Match".to_string(),
-            in_match: "In Match: {mode}".to_string(),
+            in_match: "{mode}".to_string(),
             match_location_label: "the Cursed Apple".to_string(),
             post_match: "Reviewing Match Results".to_string(),
             spectating: "Spectating a Match".to_string(),
@@ -239,7 +237,7 @@ pub fn config_path() -> PathBuf {
 }
 
 // Increment this when a migration is added that fixes existing key values.
-const CURRENT_CONFIG_VERSION: i64 = 3;
+const CURRENT_CONFIG_VERSION: i64 = 4;
 
 // Recursively fills missing keys in `user` from `defaults`.
 // Returns true if any key was added.
@@ -316,6 +314,36 @@ fn update_config_file(path: &std::path::Path, text: &str) -> bool {
         return false;
     };
 
+    let mut changed = apply_migrations(&mut val);
+
+    if merge_defaults(&mut val, &defaults) {
+        changed = true;
+    }
+
+    if !changed {
+        return false;
+    }
+
+    match toml::to_string_pretty(&val) {
+        Ok(new_text) => match std::fs::write(path, new_text) {
+            Ok(_) => {
+                log::info!("[config] config.toml updated");
+                true
+            }
+            Err(e) => {
+                log::warn!("[config] Could not update config.toml: {e}");
+                false
+            }
+        },
+        Err(e) => {
+            log::warn!("[config] Could not serialize config: {e}");
+            false
+        }
+    }
+}
+
+// Rewrites old default values in place based on config_version. Returns true if anything changed.
+fn apply_migrations(val: &mut toml::Value) -> bool {
     let version = val
         .get("general")
         .and_then(|g| g.get("config_version"))
@@ -392,30 +420,88 @@ fn update_config_file(path: &std::path::Path, text: &str) -> bool {
         }
     }
 
-    if merge_defaults(&mut val, &defaults) {
-        changed = true;
-    }
-
-    if !changed {
-        return false;
-    }
-
-    match toml::to_string_pretty(&val) {
-        Ok(new_text) => match std::fs::write(path, new_text) {
-            Ok(_) => {
-                log::info!("[config] config.toml updated");
-                true
+    // Migration v4: trimmed status lines (issue #61). in_match drops its "In Match:" prefix, and
+    // details_without_hero is removed because no phase shows it any more. Only untouched past
+    // defaults of in_match are updated so custom strings are kept.
+    if version < 4 {
+        const OLD_IN_MATCH_DEFAULTS: [&str; 2] =
+            ["In Match: {mode}", "{mode} \u{2022} Battling in {location}"];
+        if let Some(toml::Value::String(s)) = val
+            .get_mut("presence")
+            .and_then(|p| p.get_mut("status"))
+            .and_then(|s| s.get_mut("in_match"))
+        {
+            if OLD_IN_MATCH_DEFAULTS.contains(&s.as_str()) {
+                log::info!("[config] Migration v4: set in_match from \"{s}\" to \"{{mode}}\"");
+                *s = "{mode}".to_string();
+                changed = true;
             }
-            Err(e) => {
-                log::warn!("[config] Could not update config.toml: {e}");
-                false
+        }
+        if let Some(toml::Value::Table(presence)) = val.get_mut("presence") {
+            if presence.remove("details_without_hero").is_some() {
+                log::info!("[config] Migration v4: removed unused details_without_hero");
+                changed = true;
             }
-        },
-        Err(e) => {
-            log::warn!("[config] Could not serialize config: {e}");
-            false
+        }
+        if let Some(toml::Value::Table(general)) = val.get_mut("general") {
+            general.insert("config_version".to_string(), toml::Value::Integer(4));
+            changed = true;
         }
     }
+
+    changed
 }
 
 pub const DEFAULT_TOML: &str = include_str!("default_config.toml");
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn migrate(text: &str) -> toml::Value {
+        let mut val: toml::Value = toml::from_str(text).unwrap();
+        apply_migrations(&mut val);
+        val
+    }
+
+    fn in_match(val: &toml::Value) -> &str {
+        val["presence"]["status"]["in_match"].as_str().unwrap()
+    }
+
+    #[test]
+    fn v4_updates_every_past_in_match_default() {
+        for (version, old) in [(3, "In Match: {mode}"), (0, "{mode} \u{2022} Battling in {location}")] {
+            let val = migrate(&format!(
+                "[general]\nconfig_version = {version}\n[presence]\ndetails_without_hero = \"{{phase}}\"\n[presence.status]\nin_match = \"{old}\"\n"
+            ));
+            assert_eq!(in_match(&val), "{mode}", "from {old:?}");
+            assert!(val["presence"].get("details_without_hero").is_none());
+            assert_eq!(val["general"]["config_version"].as_integer(), Some(4));
+        }
+    }
+
+    #[test]
+    fn v4_keeps_custom_in_match() {
+        let val = migrate(
+            "[general]\nconfig_version = 3\n[presence.status]\nin_match = \"Fighting: {mode}\"\n",
+        );
+        assert_eq!(in_match(&val), "Fighting: {mode}");
+    }
+
+    #[test]
+    fn v4_leaves_current_configs_alone() {
+        let mut val: toml::Value = toml::from_str(DEFAULT_TOML).unwrap();
+        assert!(!apply_migrations(&mut val));
+    }
+
+    #[test]
+    fn default_toml_matches_struct_defaults() {
+        let parsed: Config = toml::from_str(DEFAULT_TOML).unwrap();
+        let s = StatusStrings::default();
+        assert_eq!(parsed.presence.status.in_match, s.in_match);
+        assert_eq!(
+            toml::from_str::<toml::Value>(DEFAULT_TOML).unwrap()["general"]["config_version"].as_integer(),
+            Some(CURRENT_CONFIG_VERSION)
+        );
+    }
+}

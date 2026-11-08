@@ -12,7 +12,7 @@ game_folder = ""
 # Set to true after the user declines the shortcut install prompt. Managed automatically.
 declined_shortcut = false
 # Managed automatically — do not edit.
-config_version = 3
+config_version = 4
 
 [presence]
 show_hero_image = true
@@ -25,8 +25,6 @@ show_statlocker_button = false
 hero_portrait_style = "normal"
 # Rich presence detail line when a hero is selected. Supports {hero}.
 details_with_hero = "Playing as {hero}"
-# Rich presence detail line when no hero is selected. Supports {phase}.
-details_without_hero = "{phase}"
 
 [presence.status]
 # Status strings for each game phase. Supports {mode} where noted.
@@ -37,7 +35,7 @@ in_matchmaking = "Searching for a Match..."
 # Supports {mode} (e.g. "Ranked", "Unranked").
 loading_into_match = "{mode} - Loading into Match"
 # Supports {mode} and {timer} (match duration, e.g. "07:42").
-in_match = "In Match: {mode}"
+in_match = "{mode}"
 match_location_label = "the Cursed Apple"
 post_match = "Reviewing Match Results"
 spectating = "Spectating a Match"
