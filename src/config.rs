@@ -1,6 +1,6 @@
 use serde::Deserialize;
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, AtomicU8};
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 
 #[derive(Debug, Default, Deserialize)]
 #[serde(default)]
@@ -219,6 +219,62 @@ pub fn set_config_string(section: &str, key: &str, value: &str) {
     if let Ok(new_text) = toml::to_string_pretty(&val) {
         let _ = std::fs::write(&path, new_text);
     }
+}
+
+// Builds the restored config text. Keeps the auto-managed game_folder and declined_shortcut
+// values so a restore doesn't forget the detected install or re-show the shortcut prompt.
+fn restored_config_text(current: Option<&toml::Value>) -> String {
+    let general = current.and_then(|c| c.get("general"));
+    let kept: Vec<(&str, toml::Value)> = [
+        ("game_folder", toml::Value::String(String::new())),
+        ("declined_shortcut", toml::Value::Boolean(false)),
+    ]
+    .into_iter()
+    .filter_map(|(key, default)| {
+        let val = general.and_then(|g| g.get(key))?;
+        (val.type_str() == default.type_str() && *val != default).then(|| (key, val.clone()))
+    })
+    .collect();
+
+    if kept.is_empty() {
+        return DEFAULT_TOML.to_string();
+    }
+    let mut val: toml::Value = toml::from_str(DEFAULT_TOML).expect("default config is valid TOML");
+    if let Some(toml::Value::Table(general)) = val.get_mut("general") {
+        for (key, v) in kept {
+            general.insert(key.to_string(), v);
+        }
+    }
+    toml::to_string_pretty(&val).unwrap_or_else(|_| DEFAULT_TOML.to_string())
+}
+
+// Overwrites config.toml with the defaults and resets the live tray toggles to match.
+pub fn restore_defaults(shared: &SharedBools) {
+    let path = config_path();
+    let current = std::fs::read_to_string(&path)
+        .ok()
+        .and_then(|t| toml::from_str::<toml::Value>(&t).ok());
+    match std::fs::write(&path, restored_config_text(current.as_ref())) {
+        Ok(_) => log::info!("[config] Restored config.toml to defaults"),
+        Err(e) => log::warn!("[config] Could not restore config.toml: {e}"),
+    }
+
+    let cfg = Config::default();
+    let fresh = SharedBools::from_config(&cfg);
+    for (live, def) in [
+        (&shared.launch_game_on_start, &fresh.launch_game_on_start),
+        (&shared.exit_when_game_closes, &fresh.exit_when_game_closes),
+        (&shared.auto_update, &fresh.auto_update),
+        (&shared.show_hero_image, &fresh.show_hero_image),
+        (&shared.show_match_timer, &fresh.show_match_timer),
+        (&shared.show_statlocker_button, &fresh.show_statlocker_button),
+    ] {
+        live.store(def.load(Ordering::Relaxed), Ordering::Relaxed);
+    }
+    shared
+        .hero_portrait_style
+        .store(fresh.hero_portrait_style.load(Ordering::Relaxed), Ordering::Relaxed);
+    shared.settings_dirty.store(true, Ordering::Relaxed);
 }
 
 pub fn apply_vars(template: &str, vars: &[(&str, &str)]) -> String {
@@ -503,5 +559,28 @@ mod tests {
             toml::from_str::<toml::Value>(DEFAULT_TOML).unwrap()["general"]["config_version"].as_integer(),
             Some(CURRENT_CONFIG_VERSION)
         );
+    }
+
+    #[test]
+    fn restore_returns_defaults_verbatim_when_nothing_to_keep() {
+        assert_eq!(restored_config_text(None), DEFAULT_TOML);
+        let custom: toml::Value = toml::from_str(
+            "[general]\nauto_update = true\n[presence.status]\nin_match = \"Fighting\"\n",
+        )
+        .unwrap();
+        assert_eq!(restored_config_text(Some(&custom)), DEFAULT_TOML);
+    }
+
+    #[test]
+    fn restore_keeps_managed_keys() {
+        let custom: toml::Value = toml::from_str(
+            "[general]\nauto_update = true\ngame_folder = \"/games/Deadlock\"\ndeclined_shortcut = true\n[presence.status]\nin_match = \"Fighting\"\n",
+        )
+        .unwrap();
+        let restored: Config = toml::from_str(&restored_config_text(Some(&custom))).unwrap();
+        assert_eq!(restored.general.game_folder.as_deref(), Some("/games/Deadlock"));
+        assert!(restored.general.declined_shortcut);
+        assert!(!restored.general.auto_update);
+        assert_eq!(restored.presence.status.in_match, StatusStrings::default().in_match);
     }
 }
