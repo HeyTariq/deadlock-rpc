@@ -89,7 +89,7 @@ The tray icon's **Settings** menu lets you toggle the most common options withou
 | `presence.show_statlocker_button` | Show Statlocker Button |
 | `presence.hero_portrait_style` | Hero Portrait Style (Normal / Gloat / Critical / Icon / Full Body) |
 
-Changes made through the tray are written to `config.toml` immediately and take effect without a restart. Select **Open Config File** in the tray menu to open the file directly in your default editor for full customization.
+Changes made through the tray are written to `config.toml` immediately and take effect without a restart. Select **Open Config File** in the tray menu to open the file directly in your default editor for full customization. Select **Restore Defaults…** to reset every setting back to its default after a confirmation prompt. Your detected game folder is kept.
 
 > [!NOTE]
 > If your config file is corrupt or causes issues, delete it and launch the application again to regenerate it with all defaults.

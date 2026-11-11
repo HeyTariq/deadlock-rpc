@@ -26,12 +26,29 @@ pub fn run(shared: std::sync::Arc<crate::config::SharedBools>) {
     windows::run(shared);
 }
 
+// Asks for confirmation, then restores the default config. Returns true if it was restored.
+fn confirm_restore_defaults(shared: &crate::config::SharedBools) -> bool {
+    let confirmed = crate::notify::confirm(
+        "Restore all settings to their defaults?\n\n\
+         This overwrites config.toml, including any custom status text. You can't undo this.",
+        "Restore Defaults",
+    );
+    if confirmed {
+        crate::config::restore_defaults(shared);
+        crate::notify::alert("Settings restored to defaults. Restart Deadlock RPC to apply status text changes.");
+    }
+    confirmed
+}
+
 #[cfg(target_os = "linux")]
 mod linux {
-    use std::sync::Arc;
+    use std::sync::{Arc, OnceLock};
     use std::sync::atomic::Ordering;
     use std::thread;
     use std::time::Duration;
+
+    // Lets background threads refresh the menu after changing shared state.
+    static HANDLE: OnceLock<ksni::Handle<DeadlockTray>> = OnceLock::new();
 
     struct DeadlockTray {
         argb: Vec<u8>,
@@ -256,6 +273,23 @@ mod linux {
                             ..Default::default()
                         }
                         .into(),
+                        ksni::MenuItem::Separator,
+                        StandardItem {
+                            label: "Restore Defaults…".to_string(),
+                            activate: Box::new(|tray: &mut Self| {
+                                // Run the dialog off the ksni thread so the tray keeps responding.
+                                let shared = Arc::clone(&tray.shared);
+                                thread::spawn(move || {
+                                    if super::confirm_restore_defaults(&shared) {
+                                        if let Some(handle) = HANDLE.get() {
+                                            handle.update(|_| {});
+                                        }
+                                    }
+                                });
+                            }),
+                            ..Default::default()
+                        }
+                        .into(),
                     ],
                     ..Default::default()
                 }
@@ -320,7 +354,9 @@ mod linux {
     }
 
     pub fn run(shared: Arc<crate::config::SharedBools>) {
-        ksni::TrayService::new(build_tray(shared)).spawn();
+        let service = ksni::TrayService::new(build_tray(shared));
+        let _ = HANDLE.set(service.handle());
+        service.spawn();
 
         // Keep the main thread alive. The ksni daemon thread owns the icon;
         // Quit exits the process directly.
@@ -440,6 +476,7 @@ mod windows {
 
         let open_config_item = MenuItem::new("Open Config File", true, None);
         let open_log_item = MenuItem::new("Open Log File", true, None);
+        let restore_defaults_item = MenuItem::new("Restore Defaults…", true, None);
         let check_updates_item = MenuItem::new("Check for Updates", true, None);
         let latest_changes_item = MenuItem::new("Latest Changes", true, None);
         let source_code_item = MenuItem::new("Source Code", true, None);
@@ -459,6 +496,8 @@ mod windows {
                 &PredefinedMenuItem::separator(),
                 &open_config_item,
                 &open_log_item,
+                &PredefinedMenuItem::separator(),
+                &restore_defaults_item,
             ])
             .unwrap();
 
@@ -475,6 +514,7 @@ mod windows {
         let portrait_fullbody_id = portrait_fullbody_item.id().clone();
         let open_config_id = open_config_item.id().clone();
         let open_log_id = open_log_item.id().clone();
+        let restore_defaults_id = restore_defaults_item.id().clone();
         let check_updates_id = check_updates_item.id().clone();
         let latest_changes_id = latest_changes_item.id().clone();
         let source_code_id = source_code_item.id().clone();
@@ -522,6 +562,22 @@ mod windows {
                                     .args(["/c", "start", "", p])
                                     .spawn();
                             }
+                        }
+                    } else if event.id == restore_defaults_id {
+                        // MessageBoxW pumps messages itself, so the tray stays responsive.
+                        if super::confirm_restore_defaults(&shared) {
+                            let style = HeroPortraitStyle::from_u8(shared.hero_portrait_style.load(Ordering::Relaxed));
+                            launch_item.set_checked(shared.launch_game_on_start.load(Ordering::Relaxed));
+                            exit_item.set_checked(shared.exit_when_game_closes.load(Ordering::Relaxed));
+                            auto_update_item.set_checked(shared.auto_update.load(Ordering::Relaxed));
+                            hero_item.set_checked(shared.show_hero_image.load(Ordering::Relaxed));
+                            match_timer_item.set_checked(shared.show_match_timer.load(Ordering::Relaxed));
+                            statlocker_item.set_checked(shared.show_statlocker_button.load(Ordering::Relaxed));
+                            portrait_normal_item.set_checked(style == HeroPortraitStyle::Normal);
+                            portrait_gloat_item.set_checked(style == HeroPortraitStyle::Gloat);
+                            portrait_critical_item.set_checked(style == HeroPortraitStyle::Critical);
+                            portrait_icon_item.set_checked(style == HeroPortraitStyle::Icon);
+                            portrait_fullbody_item.set_checked(style == HeroPortraitStyle::FullBody);
                         }
                     } else if event.id == check_updates_id {
                         let shared = Arc::clone(&shared);
