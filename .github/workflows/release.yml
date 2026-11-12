@@ -9,8 +9,27 @@ permissions:
   contents: write
 
 jobs:
+  check-version:
+    name: Check tag matches Cargo.toml version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare tag and Cargo.toml version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          tag_version="${TAG#v}"
+          cargo_version="$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')"
+          if [ "$tag_version" != "$cargo_version" ]; then
+            echo "::error::Tag $TAG (version $tag_version) does not match Cargo.toml version $cargo_version. Bump Cargo.toml before tagging."
+            exit 1
+          fi
+          echo "Tag $TAG matches Cargo.toml version $cargo_version"
+
   build:
     name: Build (${{ matrix.os }})
+    needs: check-version
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
