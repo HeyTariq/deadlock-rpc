@@ -1,0 +1,74 @@
+name: Bug report
+description: Something isn't working right
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please check the [existing issues](https://github.com/HeyTariq/deadlock-rpc/issues) first in case someone already reported it.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the bug in a sentence or two.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we make the bug happen?
+      placeholder: |
+        1. Start Deadlock RPC
+        2. Launch Deadlock
+        3. ...
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - Linux
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Optional. Drag and drop images here.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else?
+      description: Optional. Anything else that might help.
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Log file
+      description: |
+        The log file helps us figure out what went wrong. To add it:
+        1. Right-click the Deadlock RPC icon in your system tray and pick **Open Log File**. You can also find it at `logs/deadlock-rpc.log` in the folder where you extracted the app.
+        2. Press **Ctrl+A** to select everything, then **Ctrl+C** to copy it.
+        3. Replace the `Paste the log here` line below with what you copied.
+
+        The log is cleared every time the app starts, so copy it before restarting the app.
+      value: |
+        <details>
+        <summary>Log file</summary>
+
+        ```log
+        Paste the log here
+        ```
+
+        </details>
