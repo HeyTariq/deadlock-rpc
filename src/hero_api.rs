@@ -65,10 +65,76 @@ impl HeroCache {
     }
 }
 
-// The endpoint resolves a hero by class_name, display name, or the bare form of either, so the
-// normalised class_name from the log watcher can be passed straight through.
+// Hero keys from the client VMDL path are model folder names, which don't always match the API
+// class_name. Try the key as-is, then without the hero_ prefix, then the static display name.
 fn fetch(client: &ureq::Agent, hero_key: &str, portrait_style: HeroPortraitStyle) -> Result<HeroData, Box<dyn std::error::Error>> {
-    let url = format!("https://api.deadlock-api.com/v1/assets/heroes/by-name/{hero_key}");
+    let stripped = hero_key.trim_start_matches("hero_");
+    let candidates = [Some(hero_key), Some(stripped), static_fallback(hero_key)];
+    for name in candidates.into_iter().flatten() {
+        match fetch_by_name(client, hero_key, name, portrait_style) {
+            Ok(data) => return Ok(data),
+            Err(err) => debug!("[api] Lookup \"{name}\" for {hero_key} failed: {err}"),
+        }
+    }
+    Err(format!("unknown hero: {hero_key}").into())
+}
+
+// Display names for every active hero, keyed by the VMDL folder key and the API class_name where
+// the two differ.
+fn static_fallback(hero_key: &str) -> Option<&'static str> {
+    let name = match hero_key {
+        "hero_abrams" | "hero_atlas" => "Abrams",
+        "hero_fencer" => "Apollo",
+        "hero_baba" => "Baba",
+        "hero_bebop" => "Bebop",
+        "hero_punkgoat" => "Billy",
+        "hero_nano" => "Calico",
+        "hero_unicorn" => "Celeste",
+        "hero_deadpack" => "Deadman Danny",
+        "hero_drifter" => "Drifter",
+        "hero_dynamo" => "Dynamo",
+        "hero_necro" => "Graves",
+        "hero_archer" | "hero_orion" => "Grey Talon",
+        "hero_haze" => "Haze",
+        "hero_astro" => "Holliday",
+        "hero_inferno" => "Infernus",
+        "hero_ivy" | "hero_tengu" => "Ivy",
+        "hero_kelvin" => "Kelvin",
+        "hero_geist" | "hero_ghost" => "Lady Geist",
+        "hero_lash" => "Lash",
+        "hero_mcginnis" | "hero_forge" => "McGinnis",
+        "hero_vampirebat" => "Mina",
+        "hero_mirage" => "Mirage",
+        "hero_digger" | "hero_krill" => "Mo & Krill",
+        "hero_nurse" => "Nurse Harrow",
+        "hero_bookworm" => "Paige",
+        "hero_chrono" => "Paradox",
+        "hero_pocket" | "hero_synth" => "Pocket",
+        "hero_ratking" => "Rat King",
+        "hero_familiar" => "Rem",
+        "hero_gigawatt_prisoner" | "hero_gigawatt" => "Seven",
+        "hero_shiv" => "Shiv",
+        "hero_werewolf" => "Silver",
+        "hero_magician" => "Sinclair",
+        "hero_chessmaster" => "Solomon",
+        "hero_doorman" => "The Doorman",
+        "hero_priest" => "Venator",
+        "hero_frank" => "Victor",
+        "hero_hornet" => "Vindicta",
+        "hero_artist" => "Violet",
+        "hero_viscous" => "Viscous",
+        "hero_viper" => "Vyper",
+        "hero_warden" => "Warden",
+        "hero_wraith" => "Wraith",
+        "hero_yamato" => "Yamato",
+        _ => return None,
+    };
+    Some(name)
+}
+
+fn fetch_by_name(client: &ureq::Agent, hero_key: &str, name: &str, portrait_style: HeroPortraitStyle) -> Result<HeroData, Box<dyn std::error::Error>> {
+    let encoded = name.replace(' ', "%20").replace('&', "%26");
+    let url = format!("https://api.deadlock-api.com/v1/assets/heroes/by-name/{encoded}");
     debug!("[api] GET {url}");
     let hero: ApiHero = client.get(&url).call()?.into_json()?;
     let images = hero.images.ok_or("hero has no images")?;
