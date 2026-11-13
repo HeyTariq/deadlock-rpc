@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deadlock Not Showing on Discord? How to Fix Your Status</title>
+  <meta name="description" content="Deadlock not showing up in your Discord status or activity? Check these settings, add the game manually, and get your hero and match showing with rich presence.">
+  <link rel="canonical" href="https://heytariq.github.io/deadlock-rpc/not-showing-on-discord/">
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Deadlock Not Showing on Discord? How to Fix Your Status">
+  <meta property="og:description" content="Deadlock not showing up in your Discord status? Check these settings and get your hero and match showing with rich presence.">
+  <meta property="og:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
+  <meta property="og:url" content="https://heytariq.github.io/deadlock-rpc/not-showing-on-discord/">
+  <meta property="og:site_name" content="Deadlock Rich Presence">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Deadlock Not Showing on Discord? How to Fix It">
+  <meta name="twitter:description" content="Deadlock not showing up in your Discord status? Check these settings and get your hero and match showing with rich presence.">
+  <meta name="twitter:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Why is Deadlock not showing on Discord?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The usual causes are activity sharing being turned off in Discord's Activity Privacy settings, your status being set to Invisible, using Discord in a browser instead of the desktop app, or Discord not detecting the game. You can add Deadlock manually under Registered Games in Discord's settings."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Deadlock have Discord rich presence?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Not built in. Discord can show that you're playing Deadlock, but the game doesn't send your hero, game mode, or match details. Deadlock Rich Presence is a free, open-source app that adds them by reading the game's console log."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I make Deadlock show up on Discord?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Open the Discord desktop app, go to User Settings, then Activity Privacy, and turn on sharing your activity. If Deadlock still doesn't appear while you play, go to Registered Games, click Add it, and pick Deadlock from the list."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Deadlock Rich Presence is running but my hero isn't showing. What's wrong?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The game was most likely started without the -condebug launch option, so it isn't writing the console log the app reads. Launch Deadlock through Deadlock Rich Presence, or add -condebug to Deadlock's launch options in Steam."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body class="faq-page">
+  <nav aria-label="Site navigation">
+    <div class="nav-inner">
+      <a href="../" class="nav-brand">
+        <img src="../assets/icon.png" alt="Deadlock RPC" width="28" height="28">
+        Deadlock RPC
+      </a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="../">Home</a></li>
+          <li><a href="../demo/">Demo</a></li>
+          <li><a href="../download/">Download</a></li>
+          <li><a href="../faq/">FAQ</a></li>
+          <li><a href="../setup-guide/">Setup Guide</a></li>
+        </ul>
+        <a href="https://github.com/HeyTariq/deadlock-rpc" class="nav-github" aria-label="View on GitHub">
+          <i class="bi bi-github" aria-hidden="true"></i>
+          <span class="nav-github-label">GitHub</span>
+        </a>
+        <button class="nav-hamburger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-mobile-menu">
+          <i class="bi bi-list" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+    <div class="nav-mobile-menu" id="nav-mobile-menu">
+      <a href="../">Home</a>
+      <a href="../demo/">Demo</a>
+      <a href="../download/">Download</a>
+      <a href="../faq/">FAQ</a>
+      <a href="../setup-guide/">Setup Guide</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container">
+      <div class="page-hero">
+        <h1>Deadlock not showing on Discord?</h1>
+        <p>Work through these checks to get "Playing Deadlock" back in your Discord status, then add your hero and match details with rich presence.</p>
+      </div>
+
+      <section>
+        <h2>If Discord doesn't show Deadlock at all</h2>
+        <div class="faq-list">
+
+          <div class="faq-item">
+            <h3>1. Turn on activity sharing</h3>
+            <p>
+              In the Discord desktop app, open <strong>User Settings</strong>, then <strong>Activity Privacy</strong>,
+              and turn on the option to share your detected activities with others. If it's off, nobody
+              sees what you're playing, including rich presence.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>2. Check your status isn't Invisible</h3>
+            <p>Discord hides your activity while your status is set to Invisible. Switch to Online, Idle, or Do Not Disturb.</p>
+          </div>
+
+          <div class="faq-item">
+            <h3>3. Use the desktop app, not the browser</h3>
+            <p>
+              Discord in a web browser can't see which games are running on your PC, and apps can't send
+              it rich presence. Install and run the Discord desktop app.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>4. Add Deadlock as a registered game</h3>
+            <p>
+              With Deadlock running, open <strong>User Settings</strong>, then <strong>Registered Games</strong>.
+              If Deadlock isn't listed as the current game, click <strong>Add it!</strong> and pick Deadlock
+              from the list. Discord remembers it from then on.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>5. Check your settings for individual servers</h3>
+            <p>
+              Discord also lets you hide your activity in specific servers. Right-click the server icon,
+              open <strong>Privacy Settings</strong>, and make sure activity status is on for that server.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>6. Don't run Discord or the game as administrator</h3>
+            <p>
+              On Windows, if one of Discord or Deadlock runs as administrator and the other doesn't, Discord
+              can fail to detect the game. Run both normally.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <section>
+        <h2>Does Deadlock have Discord rich presence?</h2>
+        <p>
+          Not built in. Even when everything above is set up, Discord only shows "Playing Deadlock" and how
+          long you've been playing. The game doesn't tell Discord which hero you're on, what mode you're in,
+          or whether you're in a match.
+        </p>
+        <p>
+          <a href="../">Deadlock Rich Presence</a> is a free, open-source app that adds those details. It reads
+          the game's console log and updates your Discord profile with your hero portrait, game mode, and match
+          state as you play. It never touches game memory or files, so it's VAC safe.
+          You can <a href="../demo/">try the interactive demo</a> to see what it looks like.
+        </p>
+      </section>
+
+      <section>
+        <h2>If Deadlock Rich Presence is running but not working</h2>
+        <div class="faq-list">
+
+          <div class="faq-item">
+            <h3>My status shows nothing from Deadlock RPC</h3>
+            <p>
+              Make sure the Discord desktop app is open before you start Deadlock RPC, and that activity
+              sharing is on (step 1 above). Then restart Deadlock RPC.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>My hero, mode, or match state isn't updating</h3>
+            <p>
+              The game was most likely started without the <code>-condebug</code> launch option, so it isn't
+              writing the log the app reads. Launch Deadlock through Deadlock RPC, which adds it for you, or
+              add it to Deadlock's launch options in Steam yourself.
+              <a href="../condebug/">What -condebug is and how to add it</a>.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>Deadlock RPC can't find the game</h3>
+            <p>
+              The app finds Deadlock through your Steam library folders. If it can't, set
+              <code>game_folder</code> in <code>config.toml</code> to your Deadlock install folder
+              (the one that contains <code>game</code>). In Steam, right-click Deadlock and choose
+              <strong>Manage, then Browse local files</strong> to find it.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>Still stuck?</h3>
+            <p>
+              Check the <code>logs/</code> folder next to the app for errors, then
+              <a href="https://github.com/HeyTariq/deadlock-rpc/issues">open a GitHub issue</a> with the log attached.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="cta-section">
+        <h2>Show your hero on Discord</h2>
+        <p>Free, open source, and works on Windows and Linux.</p>
+        <div class="btn-group">
+          <a href="../download/" class="btn btn-primary">Download Deadlock RPC</a>
+          <a href="../setup-guide/" class="btn btn-secondary">Setup Guide</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>Deadlock RPC, open source, <a href="https://github.com/HeyTariq/deadlock-rpc/blob/main/LICENSE">GPL-3.0 License</a></span>
+      <span class="footer-links">
+        <a href="https://github.com/HeyTariq/deadlock-rpc">GitHub</a>
+        <a href="https://github.com/HeyTariq/deadlock-rpc/releases">Releases</a>
+        <a href="../download/">Download</a>
+        <a href="../faq/">FAQ</a>
+        <a href="../setup-guide/">Setup Guide</a>
+        <a href="../condebug/">-condebug</a>
+      </span>
+    </div>
+    <div class="footer-inner footer-disclaimer">
+      Not affiliated with Valve Corporation. Deadlock and all hero assets are property of Valve Corporation.
+    </div>
+  </footer>
+  <script>
+  (function () {
+    var btn = document.querySelector('.nav-hamburger');
+    var menu = document.getElementById('nav-mobile-menu');
+    if (!btn || !menu) return;
+    btn.addEventListener('click', function () {
+      var open = menu.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) {
+      if (!menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }());
+  </script>
+</body>
+</html>

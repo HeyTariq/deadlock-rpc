@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Setup Guide: Deadlock Rich Presence Discord RPC Installation</title>
+  <title>How to Show Deadlock on Discord: Rich Presence Setup Guide</title>
   <meta name="description" content="Step-by-step guide to install and configure Deadlock Rich Presence for Discord. Covers Windows, Linux, config.toml options, and hero portrait styles.">
   <link rel="canonical" href="https://heytariq.github.io/deadlock-rpc/setup-guide/">
   <link rel="icon" type="image/png" href="../assets/icon.png">
 
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Setup Guide: Deadlock Rich Presence Discord RPC Installation">
+  <meta property="og:title" content="How to Show Deadlock on Discord: Rich Presence Setup Guide">
   <meta property="og:description" content="Step-by-step guide to install and configure Deadlock Rich Presence for Discord on Windows and Linux.">
   <meta property="og:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
   <meta property="og:url" content="https://heytariq.github.io/deadlock-rpc/setup-guide/">
   <meta property="og:site_name" content="Deadlock Rich Presence">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Setup Guide: Deadlock Rich Presence Discord RPC">
+  <meta name="twitter:title" content="How to Show Deadlock on Discord: Setup Guide">
   <meta name="twitter:description" content="Step-by-step guide to install and configure Deadlock Rich Presence for Discord on Windows and Linux.">
   <meta name="twitter:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
 
@@ -95,7 +95,7 @@
   <main>
     <div class="container">
       <div class="page-hero">
-        <h1>Deadlock Rich Presence Setup Guide</h1>
+        <h1>How to show Deadlock on Discord</h1>
         <p>How to install and configure Deadlock Discord Rich Presence on Windows and Linux.</p>
       </div>
 
@@ -172,20 +172,52 @@
           <div class="guide-content">
             <h3>Play Deadlock</h3>
             <p>
-              Deadlock RPC launches Deadlock automatically with the <code>-condebug</code> flag,
-              which causes the game to write its internal log to a file. The app monitors that file
+              Deadlock RPC launches Deadlock automatically with the <a href="../condebug/"><code>-condebug</code></a>
+              launch option, which makes the game write its console log to a file. The app watches that file
               and pushes updates to Discord whenever your hero, match state, or game phase changes.
             </p>
             <p>
-              From now on, use the <strong>Deadlock RPC</strong> shortcut (included in the zip)
-              instead of launching Deadlock directly.
+              On first run the app offers to create a <strong>Deadlock RPC</strong> shortcut. Use it instead of
+              launching Deadlock directly, or pick one of the other launch methods below.
             </p>
+          </div>
+        </div>
+      </section>
 
-            <div class="notice">
-              <strong>Tip:</strong> Add <code>deadlock-rpc.exe</code> as a non-Steam game in your
-              Steam library to launch it from your library.
-              See <a href="https://help.steampowered.com/en/faqs/view/4B8B-9697-2338-40EC">Steam's guide</a>.
-            </div>
+      <section id="launching">
+        <h2>Ways to launch Deadlock</h2>
+        <p class="section-sub">
+          Rich presence only works when Deadlock writes its console log, which needs the
+          <a href="../condebug/"><code>-condebug</code></a> launch option. Pick whichever of these suits you.
+        </p>
+
+        <div class="faq-list">
+          <div class="faq-item">
+            <h3>1. Use the Deadlock RPC shortcut (recommended)</h3>
+            <p>
+              Start Deadlock RPC from its shortcut or executable. It starts the game for you and closes when you quit.
+              You can also add it as a non-Steam game to launch it from your Steam library;
+              <a href="https://help.steampowered.com/en/faqs/view/4B8B-9697-2338-40EC">Steam's guide</a> explains how.
+            </p>
+          </div>
+          <div class="faq-item">
+            <h3>2. Press Play in Steam as usual</h3>
+            <p>
+              In Steam, right-click Deadlock, open <strong>Properties</strong>, and set <strong>Launch Options</strong>
+              to the full path of the app followed by <code>--launch-with-command -- %command%</code>:
+            </p>
+            <pre><code>/path/to/deadlock-rpc --launch-with-command -- %command%</code></pre>
+            <p>
+              On Windows, use the path to <code>deadlock-rpc.exe</code> and wrap it in quotes if it contains spaces.
+              The app adds <code>-condebug</code> for you and closes with the game.
+            </p>
+          </div>
+          <div class="faq-item">
+            <h3>3. Launch both yourself</h3>
+            <p>
+              Add <code>-condebug</code> to Deadlock's <strong>Launch Options</strong> in Steam, then start Deadlock and
+              Deadlock RPC however you like. Run the app with <code>--no-launch</code> if you don't want it to start the game.
+            </p>
           </div>
         </div>
       </section>
@@ -336,6 +368,7 @@ in_hideout     = "Chilling in the Hideout"</code></pre>
 
       <section>
         <h2>Troubleshooting</h2>
+        <p class="section-sub">For Discord settings that hide your activity, see <a href="../not-showing-on-discord/">Deadlock not showing on Discord</a>.</p>
 
         <div class="faq-list">
           <div class="faq-item">
@@ -344,11 +377,11 @@ in_hideout     = "Chilling in the Hideout"</code></pre>
           </div>
           <div class="faq-item">
             <h3>Hero image is not updating</h3>
-            <p>Hero detection relies on the game log. Make sure Deadlock was launched through Deadlock RPC, not directly. The app passes <code>-condebug</code> to Deadlock on launch; without this flag, no log file is written and hero detection does not work.</p>
+            <p>Hero detection relies on the game log. Make sure Deadlock was launched through Deadlock RPC, or with <code>-condebug</code> in its launch options. Without it, no log file is written and hero detection does not work. <a href="../condebug/">More about -condebug</a>.</p>
           </div>
           <div class="faq-item">
             <h3>Deadlock RPC can't find the game</h3>
-            <p>Deadlock RPC locates Deadlock through the Steam installation registry. Make sure Steam is installed and Deadlock is in your library. If you moved your Steam installation, relaunch Steam to refresh the registry entries.</p>
+            <p>Deadlock RPC finds Deadlock through your Steam library folders. If it can't, set <code>game_folder</code> in <code>config.toml</code> to your Deadlock install folder. In Steam, right-click Deadlock and choose Manage, then Browse local files to find it.</p>
           </div>
           <div class="faq-item">
             <h3>The config file is missing</h3>
@@ -371,16 +404,14 @@ in_hideout     = "Chilling in the Hideout"</code></pre>
   <footer>
     <div class="footer-inner">
       <span>Deadlock RPC, open source, <a href="https://github.com/HeyTariq/deadlock-rpc/blob/main/LICENSE">GPL-3.0 License</a></span>
-      <span>
+      <span class="footer-links">
         <a href="https://github.com/HeyTariq/deadlock-rpc">GitHub</a>
-        ·
         <a href="https://github.com/HeyTariq/deadlock-rpc/releases">Releases</a>
-        ·
         <a href="../download/">Download</a>
-        ·
         <a href="../demo/">Demo</a>
-        ·
         <a href="../faq/">FAQ</a>
+        <a href="../condebug/">-condebug</a>
+        <a href="../not-showing-on-discord/">Troubleshooting</a>
       </span>
     </div>
     <div class="footer-inner footer-disclaimer">

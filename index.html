@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Deadlock Rich Presence: Discord Rich Presence for Deadlock</title>
-  <meta name="description" content="Show your Deadlock hero, match state, and game mode on Discord automatically. Free Rust-native app for Windows and Linux. No runtime required.">
+  <title>Deadlock Discord Rich Presence: Show Your Hero on Discord</title>
+  <meta name="description" content="Free, open-source and VAC safe. Show your Deadlock hero, game mode, and match status in your Discord activity automatically. Windows and Linux.">
   <link rel="canonical" href="https://heytariq.github.io/deadlock-rpc/">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <meta name="google-site-verification" content="DSSa6KZz8AAY7FuasjFtx8nGeRokejxk_uT6S8hJzq4" />
 
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Deadlock Rich Presence: Discord Rich Presence for Deadlock">
-  <meta property="og:description" content="Show your Deadlock hero, match state, and game mode on Discord automatically. Free Rust-native app for Windows and Linux.">
+  <meta property="og:title" content="Deadlock Discord Rich Presence: Show Your Hero on Discord">
+  <meta property="og:description" content="Free, open-source and VAC safe. Show your Deadlock hero, game mode, and match status in your Discord activity. Windows and Linux.">
   <meta property="og:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
   <meta property="og:url" content="https://heytariq.github.io/deadlock-rpc/">
   <meta property="og:site_name" content="Deadlock Rich Presence">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Deadlock Rich Presence: Discord Rich Presence for Deadlock">
-  <meta name="twitter:description" content="Show your Deadlock hero, match state, and game mode on Discord automatically. Free Rust-native app for Windows and Linux.">
+  <meta name="twitter:title" content="Deadlock Discord Rich Presence: Show Your Hero on Discord">
+  <meta name="twitter:description" content="Free, open-source and VAC safe. Show your Deadlock hero, game mode, and match status in your Discord activity. Windows and Linux.">
   <meta name="twitter:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -35,7 +35,7 @@
     "downloadUrl": "https://github.com/HeyTariq/deadlock-rpc/releases/latest",
     "applicationCategory": "GameApplication",
     "operatingSystem": ["Windows", "Linux"],
-    "softwareVersion": "1.0.1",
+    "softwareVersion": "1.1.1",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -112,9 +112,7 @@
           <div class="dl-alts">
             <a href="https://github.com/HeyTariq/deadlock-rpc/releases/latest/download/deadlock-rpc-setup-linux-x86_64.zip" class="link-subtle dl-alt-linux">Also for Linux</a>
             <a href="https://github.com/HeyTariq/deadlock-rpc/releases/latest/download/deadlock-rpc-setup-windows-x86_64.zip" class="link-subtle dl-alt-win">Also for Windows</a>
-            <span class="dl-dot" aria-hidden="true">·</span>
             <a href="setup-guide/" class="link-subtle">Setup Guide</a>
-            <span class="dl-dot" aria-hidden="true">·</span>
             <a href="https://github.com/HeyTariq/deadlock-rpc/releases" class="link-subtle">All releases</a>
           </div>
         </div>
@@ -189,7 +187,7 @@
           </div>
           <div class="step">
             <h3>Run Deadlock RPC</h3>
-            <p>Launch the executable. It starts Deadlock with <code>-condebug</code>, then monitors the game log for hero and state changes in real time.</p>
+            <p>Launch the executable. It starts Deadlock with <a href="condebug/"><code>-condebug</code></a>, then monitors the game log for hero and state changes in real time.</p>
           </div>
           <div class="step">
             <h3>Discord updates live</h3>
@@ -211,6 +209,10 @@
             <p>Yes. Pre-built Linux x86_64 binaries are on the Releases page alongside the Windows builds. Both platforms are actively tested.</p>
           </div>
           <div class="faq-item">
+            <h3>Why isn't Deadlock showing on my Discord?</h3>
+            <p>Usually it's Discord's Activity Privacy setting, an Invisible status, or the game being launched without <code>-condebug</code>. See <a href="not-showing-on-discord/">how to fix Deadlock not showing on Discord</a>.</p>
+          </div>
+          <div class="faq-item">
             <h3>How do I customize my Deadlock Discord status?</h3>
             <p>Edit <code>config.toml</code> next to the executable. Change any presence text, toggle the timer, switch hero portrait styles, or enable the Statlocker button. Changes apply on the next launch.</p>
           </div>
@@ -220,7 +222,7 @@
 
       <section class="cta-section">
         <h2>Show your hero on Discord</h2>
-        <p>Free, open source, actively maintained. 11+ releases and counting.</p>
+        <p>Free, open source, and actively maintained.</p>
         <div class="btn-group">
           <a href="download/" class="btn btn-primary">Download Deadlock RPC</a>
           <a href="setup-guide/" class="btn btn-secondary">Setup Guide</a>
@@ -233,16 +235,14 @@
   <footer>
     <div class="footer-inner">
       <span>Deadlock RPC, open source, <a href="https://github.com/HeyTariq/deadlock-rpc/blob/main/LICENSE">GPL-3.0 License</a></span>
-      <span>
+      <span class="footer-links">
         <a href="https://github.com/HeyTariq/deadlock-rpc">GitHub</a>
-        ·
         <a href="https://github.com/HeyTariq/deadlock-rpc/releases">Releases</a>
-        ·
         <a href="demo/">Demo</a>
-        ·
         <a href="faq/">FAQ</a>
-        ·
         <a href="setup-guide/">Setup Guide</a>
+        <a href="condebug/">-condebug</a>
+        <a href="not-showing-on-discord/">Troubleshooting</a>
       </span>
     </div>
     <div class="footer-inner footer-disclaimer">
