@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What Is -condebug in Deadlock? Launch Option Explained</title>
+  <meta name="description" content="What the Deadlock -condebug launch option does, where it writes console.log, whether it's safe, and how to add it in Steam on Windows and Linux.">
+  <link rel="canonical" href="https://heytariq.github.io/deadlock-rpc/condebug/">
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="What Is -condebug in Deadlock? Launch Option Explained">
+  <meta property="og:description" content="What the Deadlock -condebug launch option does, where it writes console.log, and how to add it in Steam.">
+  <meta property="og:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
+  <meta property="og:url" content="https://heytariq.github.io/deadlock-rpc/condebug/">
+  <meta property="og:site_name" content="Deadlock Rich Presence">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="What Is -condebug in Deadlock?">
+  <meta name="twitter:description" content="What the Deadlock -condebug launch option does, where it writes console.log, and how to add it in Steam.">
+  <meta name="twitter:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is -condebug in Deadlock?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "-condebug is a standard Valve launch option. When Deadlock starts with it, the game copies everything it prints to its developer console into a text file called console.log in the game/citadel folder of your Deadlock install."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is -condebug safe? Can it get me VAC banned?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, it is safe. -condebug is a built-in launch option that Valve's own games support. It does not change gameplay, inject anything, or modify game files. It only tells the game to write its console output to a file."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does -condebug affect Deadlock performance?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Not in any way you will notice. The game writes plain text lines to a single file on disk, which is a tiny amount of work compared to rendering the game."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I add -condebug to Deadlock?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "In Steam, right-click Deadlock in your library, choose Properties, and type -condebug in the Launch Options box on the General tab. Close the window and launch the game as usual."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Where is Deadlock's console.log file?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It is in the game/citadel folder inside your Deadlock install. With a default Steam library that is C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\console.log on Windows and ~/.local/share/Steam/steamapps/common/Deadlock/game/citadel/console.log on Linux. The file only appears after the game has run with -condebug."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body class="faq-page">
+  <nav aria-label="Site navigation">
+    <div class="nav-inner">
+      <a href="../" class="nav-brand">
+        <img src="../assets/icon.png" alt="Deadlock RPC" width="28" height="28">
+        Deadlock RPC
+      </a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="../">Home</a></li>
+          <li><a href="../demo/">Demo</a></li>
+          <li><a href="../download/">Download</a></li>
+          <li><a href="../faq/">FAQ</a></li>
+          <li><a href="../setup-guide/">Setup Guide</a></li>
+        </ul>
+        <a href="https://github.com/HeyTariq/deadlock-rpc" class="nav-github" aria-label="View on GitHub">
+          <i class="bi bi-github" aria-hidden="true"></i>
+          <span class="nav-github-label">GitHub</span>
+        </a>
+        <button class="nav-hamburger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-mobile-menu">
+          <i class="bi bi-list" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+    <div class="nav-mobile-menu" id="nav-mobile-menu">
+      <a href="../">Home</a>
+      <a href="../demo/">Demo</a>
+      <a href="../download/">Download</a>
+      <a href="../faq/">FAQ</a>
+      <a href="../setup-guide/">Setup Guide</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container">
+      <div class="page-hero">
+        <h1>What is -condebug in Deadlock?</h1>
+        <p>A built-in Valve launch option that saves the game's console output to a file. Here's what it does, where the file goes, and how to turn it on.</p>
+      </div>
+
+      <section>
+        <div class="faq-list">
+
+          <div class="faq-item">
+            <h3>What does -condebug do?</h3>
+            <p>
+              Deadlock has a developer console that prints a running log of what the game is doing:
+              loading maps, joining matches, picking heroes, connecting to servers.
+              Normally that text only lives in memory. Starting the game with <code>-condebug</code>
+              tells it to also write every line to a file called <code>console.log</code>.
+            </p>
+            <p>
+              It's the same option that works in other Valve games like Counter-Strike and Dota 2.
+              Deadlock just puts the file in its own folder.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>Is -condebug safe? Can it get me VAC banned?</h3>
+            <p>
+              Yes, it's safe. <code>-condebug</code> is a launch option the game supports out of the box.
+              It doesn't change gameplay, inject anything, or modify game files. It only tells the game
+              to save text it was already printing. VAC looks for cheats that tamper with the game, and
+              a launch option Valve built in isn't one of them.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>Does it affect performance?</h3>
+            <p>
+              Not in any way you'll notice. Writing a few lines of plain text to one file is a tiny
+              amount of work next to rendering the game.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>How do I add -condebug to Deadlock?</h3>
+            <ol>
+              <li>Open Steam and go to your <strong>Library</strong>.</li>
+              <li>Right-click <strong>Deadlock</strong> and choose <strong>Properties</strong>.</li>
+              <li>On the <strong>General</strong> tab, type <code>-condebug</code> in the <strong>Launch Options</strong> box. If something is already there, add it after a space.</li>
+              <li>Close the window and launch Deadlock as usual.</li>
+            </ol>
+            <p>To turn it off again, delete <code>-condebug</code> from the same box.</p>
+          </div>
+
+          <div class="faq-item">
+            <h3>Where is Deadlock's console.log?</h3>
+            <p>It's in the <code>game/citadel</code> folder inside your Deadlock install. With a default Steam library:</p>
+            <p><strong>Windows:</strong></p>
+            <pre><code>C:\Program Files (x86)\Steam\steamapps\common\Deadlock\game\citadel\console.log</code></pre>
+            <p><strong>Linux:</strong></p>
+            <pre><code>~/.local/share/Steam/steamapps/common/Deadlock/game/citadel/console.log</code></pre>
+            <p>
+              If you installed Deadlock in a different Steam library, right-click Deadlock in Steam and choose
+              <strong>Manage, then Browse local files</strong> to open the install folder.
+              The file only appears after you've launched the game with <code>-condebug</code> at least once.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>Why would I want it?</h3>
+            <p>
+              Mostly for tools that read the log to see what's happening in your game, and for
+              digging into crashes or connection problems. Deadlock Rich Presence uses it to show your
+              hero, game mode, and match state on your Discord profile. The game tells nobody else
+              what you're doing, so the log is the only safe place to read it from.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>Do I need to add it for Deadlock Rich Presence?</h3>
+            <p>
+              Usually not. When Deadlock Rich Presence starts the game for you, it adds <code>-condebug</code>
+              on its own. You only need to add it yourself if you launch Deadlock straight from Steam and start
+              the app separately. The <a href="../setup-guide/#launching">setup guide</a> covers all three ways
+              to launch the game.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="cta-section">
+        <h2>Show your Deadlock hero on Discord</h2>
+        <p>Deadlock Rich Presence handles <code>-condebug</code> for you and updates your Discord status as you play.</p>
+        <div class="btn-group">
+          <a href="../download/" class="btn btn-primary">Download Deadlock RPC</a>
+          <a href="../not-showing-on-discord/" class="btn btn-secondary">Deadlock not showing on Discord?</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>Deadlock RPC, open source, <a href="https://github.com/HeyTariq/deadlock-rpc/blob/main/LICENSE">GPL-3.0 License</a></span>
+      <span class="footer-links">
+        <a href="https://github.com/HeyTariq/deadlock-rpc">GitHub</a>
+        <a href="https://github.com/HeyTariq/deadlock-rpc/releases">Releases</a>
+        <a href="../download/">Download</a>
+        <a href="../faq/">FAQ</a>
+        <a href="../setup-guide/">Setup Guide</a>
+        <a href="../not-showing-on-discord/">Troubleshooting</a>
+      </span>
+    </div>
+    <div class="footer-inner footer-disclaimer">
+      Not affiliated with Valve Corporation. Deadlock and all hero assets are property of Valve Corporation.
+    </div>
+  </footer>
+  <script>
+  (function () {
+    var btn = document.querySelector('.nav-hamburger');
+    var menu = document.getElementById('nav-mobile-menu');
+    if (!btn || !menu) return;
+    btn.addEventListener('click', function () {
+      var open = menu.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) {
+      if (!menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }());
+  </script>
+</body>
+</html>

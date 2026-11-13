@@ -246,16 +246,11 @@ h1 {
 .dl-alts {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 10px 18px;
   font-size: 0.875rem;
   color: var(--muted);
   flex-wrap: wrap;
   justify-content: center;
-}
-
-.dl-dot {
-  color: var(--border);
-  user-select: none;
 }
 
 .dl-alt-win {
@@ -1156,4 +1151,11 @@ footer {
     flex: 1;
     justify-content: center;
   }
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 16px;
 }

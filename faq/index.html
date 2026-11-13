@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FAQ: Deadlock Rich Presence Discord RPC Questions Answered</title>
+  <title>Deadlock Discord Rich Presence FAQ: VAC Safety, Linux and Setup</title>
   <meta name="description" content="Answers to common questions about Deadlock Rich Presence: VAC safety, Linux support, hero portraits, Statlocker, customization, and more.">
   <link rel="canonical" href="https://heytariq.github.io/deadlock-rpc/faq/">
   <link rel="icon" type="image/png" href="../assets/icon.png">
 
   <meta property="og:type" content="website">
-  <meta property="og:title" content="FAQ: Deadlock Rich Presence Discord RPC Questions Answered">
+  <meta property="og:title" content="Deadlock Discord Rich Presence FAQ: VAC Safety, Linux and Setup">
   <meta property="og:description" content="Answers to common questions about Deadlock Rich Presence: VAC safety, Linux support, hero portraits, Statlocker, and customization.">
   <meta property="og:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
   <meta property="og:url" content="https://heytariq.github.io/deadlock-rpc/faq/">
   <meta property="og:site_name" content="Deadlock Rich Presence">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="FAQ: Deadlock Rich Presence Discord RPC">
+  <meta name="twitter:title" content="Deadlock Discord Rich Presence FAQ">
   <meta name="twitter:description" content="Common questions about Deadlock Rich Presence: VAC safety, Linux support, hero portraits, customization, and more.">
   <meta name="twitter:image" content="https://heytariq.github.io/deadlock-rpc/assets/icon.png">
 
@@ -46,10 +46,26 @@
       },
       {
         "@type": "Question",
-        "name": "How do I show my Deadlock hero on Discord?",
+        "name": "Does Deadlock have Discord rich presence?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Download Deadlock Rich Presence from the Releases page on GitHub, extract the zip, and run the executable. It automatically launches Deadlock and starts updating your Discord profile with your hero, game phase, and match mode as you play."
+          "text": "Not built in. Discord can show that you are playing Deadlock, but the game does not send your hero, game mode, or match state. Deadlock Rich Presence is a free, open-source app that adds those details to your Discord status."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I connect Deadlock to Discord?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Download Deadlock Rich Presence, extract the zip, and run the executable with the Discord desktop app open. It launches Deadlock and starts updating your Discord profile with your hero, game phase, and match mode as you play. You can also set it up so pressing Play in Steam starts it."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is -condebug and why does Deadlock RPC use it?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "-condebug is a built-in Valve launch option that makes Deadlock write its console output to game/citadel/console.log. Deadlock RPC reads that file to detect your hero and match state, and adds the option automatically when it launches the game."
         }
       },
       {
@@ -148,7 +164,7 @@
   <main>
     <div class="container">
       <div class="page-hero">
-        <h1>Deadlock Rich Presence FAQ</h1>
+        <h1>Deadlock Discord Rich Presence FAQ</h1>
         <p>Common questions about Deadlock Discord Rich Presence: safety, Linux support, hero portraits, and customization.</p>
       </div>
 
@@ -176,12 +192,33 @@
           </div>
 
           <div class="faq-item">
-            <h3>How do I show my Deadlock hero on Discord?</h3>
+            <h3>Does Deadlock have Discord rich presence?</h3>
+            <p>
+              Not built in. Discord can show that you're playing Deadlock, but the game doesn't send
+              your hero, game mode, or match state. Deadlock RPC adds those details to your Discord status.
+              If Discord doesn't show Deadlock at all, see
+              <a href="../not-showing-on-discord/">Deadlock not showing on Discord</a>.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>How do I connect Deadlock to Discord?</h3>
             <p>
               Download the app from the <a href="../download/">Download page</a>, extract the zip,
-              and run the executable. Deadlock RPC starts Deadlock automatically and begins showing
-              your hero, game phase, and match mode on Discord as you play. No additional configuration
-              is needed to get started.
+              and run the executable with the Discord desktop app open. Deadlock RPC starts Deadlock
+              and begins showing your hero, game phase, and match mode on Discord as you play.
+              No extra configuration is needed. You can also set it up so pressing Play in Steam
+              starts it; see <a href="../setup-guide/#launching">ways to launch</a>.
+            </p>
+          </div>
+
+          <div class="faq-item">
+            <h3>What is -condebug and why does Deadlock RPC use it?</h3>
+            <p>
+              <code>-condebug</code> is a built-in Valve launch option that makes Deadlock write its console
+              output to <code>game/citadel/console.log</code>. Deadlock RPC reads that file to detect your hero
+              and match state, and adds the option for you when it launches the game.
+              <a href="../condebug/">More about -condebug</a>.
             </p>
           </div>
 
@@ -278,16 +315,14 @@
   <footer>
     <div class="footer-inner">
       <span>Deadlock RPC, open source, <a href="https://github.com/HeyTariq/deadlock-rpc/blob/main/LICENSE">GPL-3.0 License</a></span>
-      <span>
+      <span class="footer-links">
         <a href="https://github.com/HeyTariq/deadlock-rpc">GitHub</a>
-        ·
         <a href="https://github.com/HeyTariq/deadlock-rpc/releases">Releases</a>
-        ·
         <a href="../download/">Download</a>
-        ·
         <a href="../demo/">Demo</a>
-        ·
         <a href="../setup-guide/">Setup Guide</a>
+        <a href="../condebug/">-condebug</a>
+        <a href="../not-showing-on-discord/">Troubleshooting</a>
       </span>
     </div>
     <div class="footer-inner footer-disclaimer">
